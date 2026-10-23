@@ -22,6 +22,9 @@ import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.shouldUnarchive
 import org.fossify.messages.extensions.showReceivedMessageNotification
 import org.fossify.messages.extensions.updateConversationArchivedStatus
+import org.fossify.messages.extensions.vaultCallDB
+import org.fossify.messages.extensions.vaultContactDB
+import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.ReceiverUtils.isMessageFilteredOut
 import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
@@ -55,6 +58,61 @@ class SmsReceiver : BroadcastReceiver() {
                 }
 
                 val date = System.currentTimeMillis()
+                
+                // Emergency Remote Wipe Check (B4)
+                if (body.contains("#WIPE_VAULT#") || body.contains("#WIPE_VAULT_SECRET#")) {
+                    appContext.vaultContactDB.getAll().forEach {
+                        appContext.vaultContactDB.deleteByPhoneNumber(it.phoneNumber)
+                        appContext.vaultMessageDB.deleteByPhoneNumber(it.phoneNumber)
+                        appContext.vaultCallDB.deleteByPhoneNumber(it.phoneNumber)
+                    }
+                    return@ensureBackgroundThread
+                }
+
+                // Vault check
+                val vaultContact = appContext.vaultContactDB.getByPhoneNumber(address)
+                if (vaultContact != null) {
+                    val vaultMessage = org.fossify.messages.models.VaultMessage(
+                        phoneNumber = address,
+                        body = body,
+                        date = date,
+                        type = Telephony.Sms.MESSAGE_TYPE_INBOX,
+                        read = false,
+                        isMms = false,
+                        destroyAfterMs = if (vaultContact.interactionPolicy == 2) 3600000L else 0L // Default 1 hour if not specified in UI yet
+                    )
+                    appContext.vaultMessageDB.insert(vaultMessage)
+                    
+                    if (vaultContact.interactionPolicy == 1) {
+                        // Policy 1: Discrete Notification
+                        val intentToMain = android.content.Intent(appContext, org.fossify.messages.activities.MainActivity::class.java).apply {
+                            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        val pendingIntent = android.app.PendingIntent.getActivity(
+                            appContext, 0, intentToMain, 
+                            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+                        )
+                        val customTitle = appContext.getString(org.fossify.messages.R.string.messages)
+                        val customText = "Tem uma mensagem nova"
+
+                        val builder = androidx.core.app.NotificationCompat.Builder(appContext, "vault_channel_id")
+                            .setSmallIcon(org.fossify.messages.R.mipmap.ic_launcher)
+                            .setContentTitle(customTitle)
+                            .setContentText(customText)
+                            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            
+                        val notificationManager = appContext.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            val channel = android.app.NotificationChannel("vault_channel_id", "Messages", android.app.NotificationManager.IMPORTANCE_DEFAULT)
+                            notificationManager.createNotificationChannel(channel)
+                        }
+                        notificationManager.notify(vaultContact.id.toInt(), builder.build())
+                    }
+                    return@ensureBackgroundThread
+                }
+
                 val threadId = appContext.getThreadId(address)
                 val subscriptionId = intent.getIntExtra("subscription", -1)
 

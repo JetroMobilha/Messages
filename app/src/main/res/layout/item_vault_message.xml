@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vault_message_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/vault_message_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/item_received_background">
+
+        <org.fossify.commons.views.MyTextView
+            android:id="@+id/vault_message_body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp" />
+
+        <org.fossify.commons.views.MyTextView
+            android:id="@+id/vault_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:textSize="10sp"
+            android:paddingTop="4dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,44 +1,67 @@
-# Fossify Messages
-<img alt="Logo" src="graphics/icon.webp" width="120" />
+# 🛡️ Messages Pro & Stealth Private Zone
 
-<a href='https://play.google.com/store/apps/details?id=org.fossify.messages'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height=80/></a> <a href="https://f-droid.org/packages/org.fossify.messages/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a> <a href="https://apt.izzysoft.de/fdroid/index/apk/org.fossify.messages"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height=80/></a>
+> **Aplicação Nativa de Mensagens Padrão (Default SMS/MMS) com Cofre Furtivo e Gateway Híbrido de Pagamentos.**
 
-Fossify Messages is your trusted messaging companion, designed to enhance your messaging experience in various ways.
+---
 
-**📱 STAY CONNECTED WITH EASE:**  
-With Fossify Messages, you can effortlessly send SMS and MMS messages to stay connected with your loved ones. Enjoy SMS/MMS based group messaging and express yourself with photos, emojis, and quick greetings.
+## 🌟 Visão Geral
 
-**🚫 BLOCK UNWANTED MESSAGES:**  
-Take control of your messaging experience with a robust blocking feature, easily preventing unwanted messages, even from unknown contacts. You can also export and import blocked numbers for hassle-free backup. Additionally, customize your experience by preventing messages with specific words or phrases from reaching your inbox.
+O **Messages Pro** é uma aplicação nativa Android de mensagens SMS/MMS rápida, segura e leve, que incorpora uma **Zona Privada Furtiva (Cofre)** totalmente indetetável. 
 
-**🔒 EFFORTLESS SMS BACKUP:**  
-Say goodbye to worries about losing important messages. Fossify Messages offers convenient SMS backup functionality by allowing you to export and import your messages. This feature ensures that you can easily switch devices without losing your valuable conversations.
+Por ser a aplicação de SMS padrão do sistema operativo, intercepta e processa mensagens e chamadas secretas **na origem**, sem deixar qualquer rasto na base de dados pública do Android ou nas notificações do telefone.
 
-**🚀 LIGHTNING-FAST AND LIGHTWEIGHT:**  
-Despite its powerful features, Fossify Messages boasts a remarkably small app size, making it quick and easy to download and install. Experience speed and efficiency while enjoying the peace of mind that comes with SMS backup.
+---
 
-**🔐 ENHANCED PRIVACY:**  
-Customize what appears on your lock screen for added privacy. Choose to display only the sender, message content, or nothing at all. Your messages are in your control.
+## 🔐 Funcionalidades Secretas & Zona Privada (Vault)
 
-**🔍 EFFICIENT MESSAGE SEARCH:**  
-Say goodbye to endless scrolling through conversations. Fossify Messages simplifies message retrieval with a quick and efficient search feature. Find what you need, when you need it.
+### 1. Gatilhos de Acesso Furtivos (Stealth Triggers)
+- **PIN na Barra de Pesquisa:** Digitar `0000` na pesquisa do ecrã principal abre a Zona Privada.
+- **Toque Longo na Barra de Topo:** Pressionar continuamente (1-2s) a barra de título do menu superior.
+- **PIN de Pânico / Coação (`9999`):** Sob ameaça ou coação, digitar `9999` abre uma **Falsa Zona Privada** completamente vazia, enganando terceiros.
 
-**🌈 MODERN DESIGN & USER-FRIENDLY INTERFACE:**  
-Enjoy a clean, modern design with a user-friendly interface. The app features a material design and a dark theme option, providing a visually appealing and comfortable user experience.
+### 2. Políticas de Interação por Contacto
+Cada contacto adicionado ao Cofre pode ter uma política personalizada:
+- **`0` - Furtivo Total:** Silêncio absoluto. A SMS/MMS ou Chamada é intercetada sem som, vibração ou notificação.
+- **`1` - Discreto:** Emite uma notificação genérica do sistema (*"Tem uma mensagem nova"*). Ao tocar na notificação, abre a caixa pública normal (sem mensagens novas), sinalizando ao utilizador para abrir o Cofre manualmente.
+- **`2` - Autodestruição:** A mensagem secreta apaga-se automaticamente e de forma permanente X tempo após ser lida pelo utilizador.
 
-**🌐 OPEN-SOURCE TRANSPARENCY:**  
-Your privacy is a top priority. Fossify Messages operates without requiring an internet connection, guaranteeing message security and stability. Our app is completely free of ads and does not request unnecessary permissions. Moreover, it is fully open-source, providing you with peace of mind, as you have access to the source code for security and privacy audits.
+### 3. Proteção Ativa Anti-Snoop & Destruição Remota
+- **Filtro de Chamadas Silencioso:** `VaultCallScreeningService` rejeita chamadas de contactos-alvo antes de tocarem e oculta o registo do histórico (`setSkipCallLog(true)`).
+- **Proteção Visual:** `FLAG_SECURE` bloqueia capturas de ecrã (screenshots) e esconde a app da lista de aplicações recentes.
+- **Destruição Remota por SMS:** Enviar uma SMS contendo `#WIPE_VAULT#` de qualquer número limpa **imediatamente** todas as mensagens, contactos e registos do Cofre.
+- **Bloqueio Biométrico:** Validação por Impressão Digital/Facial ao abrir o Cofre.
 
-Make the switch to Fossify Messages and experience messaging the way it should be – private, efficient, and user-friendly. Download now and join our community committed to safeguarding your messaging experience.
+---
 
-➡️ Explore more Fossify apps: https://www.fossify.org<br>
-➡️ Open-Source Code: https://www.github.com/FossifyOrg<br>
-➡️ Join the community on Reddit: https://www.reddit.com/r/Fossify<br>
-➡️ Connect on Telegram: https://t.me/Fossify
+## ☁️ Backup Automático Encriptado (Zero-Knowledge)
 
-<div align="center">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="30%">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_en-US.png" width="30%">
-<img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_en-US.png" width="30%">
-</div>
+- **Encriptação Forte:** Algoritmo **AES-256-CBC** com derivação de chave **PBKDF2WithHmacSHA256** (10.000 iterações) a partir do Nome de Utilizador + Palavra-passe.
+- **Sincronização Nuvem em 1 Clique:** Envia os pacotes encriptados automaticamente para a API Laravel (`messages-api`).
+- **Restauro Sem Stress:** Reinstale a app ou mude de dispositivo, introduza o Utilizador/Senha e restaure tudo com 1 clique.
 
+---
+
+## 💳 Gateway Híbrido de Pagamentos ("Traffic Cop")
+
+A aplicação integra um sistema inteligente de checkout que direciona o utilizador com base na sua localização:
+
+- **Angola (AppyPay / Multicaixa):** Detecta prefixos `+244` e gera pagamentos em Kwanzas (**5.000,00 AOA**) via **Multicaixa Express** ou **Referência Multicaixa** (Entidade/Referência).
+- **Internacional (Paddle / Stripe):** Processa cartões Visa/Mastercard/PayPal em USD (**$4.99 USD**).
+
+---
+
+## 🛠️ Arquitetura e Estrutura Técnica
+
+- **Linguagem:** Kotlin 100% Nativo.
+- **Base de Dados:** Room Database (`MessagesDatabase` v13 com `vault_contacts`, `vault_messages`, `vault_calls`).
+- **Comunicação Assíncrona:** `ensureBackgroundThread`, Coroutines, `goAsync()`.
+- **Servidor Backend:** Laravel 12 API (`C:\xampp\htdocs\messages-api`).
+
+---
+
+## 🚀 Como Compilar e Executar
+
+1. Abra o projeto no **Android Studio 2026.1.2+**.
+2. Certifique-se de que o JDK 17 está selecionado nas definições do projeto.
+3. Sincronize o Gradle e execute no emulador ou num dispositivo físico com Android 9.0+ (API 28+).
+4. Para testar a comunicação com a API Laravel local no emulador, certifique-se de que o XAMPP/Apache está a correr em `localhost`.

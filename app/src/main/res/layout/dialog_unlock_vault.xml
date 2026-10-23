@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <org.fossify.commons.views.MyTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Limite Gratuito Atingido"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="12dp" />
+
+    <org.fossify.commons.views.MyTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Atingiu o limite de 2 contactos no Cofre. Escolha uma opção para continuar:"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:paddingBottom="20dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/unlock_watch_ad_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="Assistir a Vídeo (30s) - Liberta +1 Slot" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/unlock_pro_btn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Desbloquear Acesso Ilimitado (Pro)" />
+
+</LinearLayout>

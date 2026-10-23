@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vault_call_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <org.fossify.commons.views.MyTextView
+            android:id="@+id/vault_call_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <org.fossify.commons.views.MyTextView
+            android:id="@+id/vault_call_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <org.fossify.commons.views.MyTextView
+        android:id="@+id/vault_call_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:text="Chamada Rejeitada Silenciosamente"
+        android:textColor="#E53935"
+        android:textSize="12sp"
+        android:textStyle="italic" />
+
+</LinearLayout>

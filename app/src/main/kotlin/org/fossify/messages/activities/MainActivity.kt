@@ -93,6 +93,11 @@ class MainActivity : SimpleActivity() {
         appLaunched(BuildConfig.APPLICATION_ID)
         setupOptionsMenu()
         refreshMenuItems()
+        
+        binding.mainMenu.findViewById<android.view.View>(org.fossify.commons.R.id.top_toolbar)?.setOnLongClickListener {
+            startActivity(Intent(this, org.fossify.messages.activities.VaultActivity::class.java))
+            true
+        }
 
         setupEdgeToEdge(padBottomImeAndSystem = listOf(binding.conversationsList))
 
@@ -108,6 +113,7 @@ class MainActivity : SimpleActivity() {
 
     override fun onResume() {
         super.onResume()
+        org.fossify.messages.helpers.VaultCleanupHelper.runCleanup(this)
         updateMenuColors()
         refreshMenuItems()
 
@@ -519,6 +525,18 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun searchTextChanged(text: String, forceUpdate: Boolean = false) {
+        if (text == "0000") { // Real Vault Trigger
+            startActivity(Intent(this, org.fossify.messages.activities.VaultActivity::class.java))
+            binding.mainMenu.closeSearch()
+            return
+        }
+
+        if (text == "9999") { // Duress PIN (Fake Vault Trigger for coercion protection)
+            startActivity(Intent(this, org.fossify.messages.activities.FakeVaultActivity::class.java))
+            binding.mainMenu.closeSearch()
+            return
+        }
+
         if (!binding.mainMenu.isSearchOpen && !forceUpdate) {
             return
         }

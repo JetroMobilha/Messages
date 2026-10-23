@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <org.fossify.commons.views.MyTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Contacto do Cofre"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_vault_contact_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nome"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_vault_contact_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Número de Telefone"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <org.fossify.commons.views.MyTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Política de Interação:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/add_vault_policy_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/policy_furtive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Furtivo Total (Silencioso)" />
+
+            <RadioButton
+                android:id="@+id/policy_discrete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Discreto (&quot;Tem uma mensagem nova&quot;)" />
+
+            <RadioButton
+                android:id="@+id/policy_self_destruct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Autodestruição após leitura" />
+        </RadioGroup>
+
+    </LinearLayout>
+</ScrollView>

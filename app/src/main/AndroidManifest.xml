@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission
@@ -32,6 +34,7 @@
     <application
         android:name=".App"
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:appCategory="productivity"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_launcher_name"
@@ -181,6 +184,22 @@
 
         <receiver android:name=".receivers.SmsStatusDeliveredReceiver" />
 
+        <activity
+            android:name=".activities.VaultActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.FakeVaultActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.VaultThreadActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <receiver
             android:name=".receivers.SmsReceiver"
             android:exported="true"
@@ -189,6 +208,15 @@
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".services.VaultCallScreeningService"
+            android:permission="android.permission.BIND_SCREENING_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+        </service>
 
         <receiver
             android:name="com.android.mms.transaction.PushReceiver"

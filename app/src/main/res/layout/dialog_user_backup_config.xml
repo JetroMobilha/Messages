@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <org.fossify.commons.views.MyTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cópia de Segurança &amp; Restauro"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/backup_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nome de Utilizador / ID"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/backup_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Palavra-passe de Encriptação"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_auto_backup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Guardar Backup" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_auto_restore"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Restaurar Dados" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -17,6 +17,7 @@ import org.fossify.messages.extensions.getThreadId
 import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.messagingUtils
 import org.fossify.messages.extensions.notificationHelper
+import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
 
@@ -25,6 +26,11 @@ class SmsStatusSentReceiver : SendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val messageUri: Uri? = intent.data
+        if (messageUri?.scheme == "content" && messageUri.host == "vault_sms") {
+            // Vault messages are not in Android telephony database
+            return
+        }
+
         val messagingUtils = context.messagingUtils
 
         val type = if (receiverResultCode == Activity.RESULT_OK) {
@@ -44,6 +50,20 @@ class SmsStatusSentReceiver : SendStatusReceiver() {
         val messageUri = intent.data
         if (messageUri != null) {
             val messageId = messageUri.lastPathSegment?.toLong() ?: 0L
+            
+            // Check if it's a Vault message
+            if (messageUri.scheme == "content" && messageUri.host == "vault_sms") {
+                ensureBackgroundThread {
+                    val type = if (receiverResultCode == Activity.RESULT_OK) {
+                        Sms.MESSAGE_TYPE_SENT
+                    } else {
+                        Sms.MESSAGE_TYPE_FAILED
+                    }
+                    context.vaultMessageDB.updateType(messageId, type)
+                }
+                return
+            }
+
             ensureBackgroundThread {
                 val type = if (receiverResultCode == Activity.RESULT_OK) {
                     Sms.MESSAGE_TYPE_SENT

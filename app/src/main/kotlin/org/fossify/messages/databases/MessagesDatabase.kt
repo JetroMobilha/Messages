@@ -20,6 +20,12 @@ import org.fossify.messages.models.Draft
 import org.fossify.messages.models.Message
 import org.fossify.messages.models.MessageAttachment
 import org.fossify.messages.models.RecycleBinMessage
+import org.fossify.messages.models.VaultCall
+import org.fossify.messages.models.VaultContact
+import org.fossify.messages.models.VaultMessage
+import org.fossify.messages.interfaces.VaultCallDao
+import org.fossify.messages.interfaces.VaultContactDao
+import org.fossify.messages.interfaces.VaultMessageDao
 
 @Database(
     entities = [
@@ -28,9 +34,12 @@ import org.fossify.messages.models.RecycleBinMessage
         MessageAttachment::class,
         Message::class,
         RecycleBinMessage::class,
-        Draft::class
+        Draft::class,
+        VaultContact::class,
+        VaultMessage::class,
+        VaultCall::class
     ],
-    version = 11
+    version = 13
 )
 @TypeConverters(Converters::class)
 abstract class MessagesDatabase : RoomDatabase() {
@@ -44,6 +53,12 @@ abstract class MessagesDatabase : RoomDatabase() {
     abstract fun MessagesDao(): MessagesDao
 
     abstract fun DraftsDao(): DraftsDao
+
+    abstract fun VaultContactDao(): VaultContactDao
+
+    abstract fun VaultMessageDao(): VaultMessageDao
+
+    abstract fun VaultCallDao(): VaultCallDao
 
     companion object {
         private var db: MessagesDatabase? = null
@@ -68,6 +83,8 @@ abstract class MessagesDatabase : RoomDatabase() {
                             .addMigrations(MIGRATION_8_9)
                             .addMigrations(MIGRATION_9_10)
                             .addMigrations(MIGRATION_10_11)
+                            .addMigrations(MIGRATION_11_12)
+                            .addMigrations(MIGRATION_12_13)
                             .build()
                     }
                 }
@@ -172,6 +189,26 @@ abstract class MessagesDatabase : RoomDatabase() {
                     "CREATE INDEX IF NOT EXISTS `index_messages_thread_id_date` " +
                         "ON `messages` (`thread_id`, `date`)"
                 )
+            }
+        }
+
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.apply {
+                    execSQL("CREATE TABLE IF NOT EXISTS `vault_contacts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `phone_number` TEXT NOT NULL, `added_date` INTEGER NOT NULL)")
+                    execSQL("CREATE TABLE IF NOT EXISTS `vault_messages` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phone_number` TEXT NOT NULL, `body` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` INTEGER NOT NULL, `read` INTEGER NOT NULL, `is_mms` INTEGER NOT NULL)")
+                    execSQL("CREATE TABLE IF NOT EXISTS `vault_calls` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `phone_number` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` INTEGER NOT NULL)")
+                }
+            }
+        }
+
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.apply {
+                    execSQL("ALTER TABLE vault_contacts ADD COLUMN interaction_policy INTEGER NOT NULL DEFAULT 0")
+                    execSQL("ALTER TABLE vault_messages ADD COLUMN read_timestamp INTEGER NOT NULL DEFAULT 0")
+                    execSQL("ALTER TABLE vault_messages ADD COLUMN destroy_after_ms INTEGER NOT NULL DEFAULT 0")
+                }
             }
         }
     }

@@ -20,6 +20,8 @@ import org.fossify.messages.extensions.insertOrUpdateConversation
 import org.fossify.messages.extensions.shouldUnarchive
 import org.fossify.messages.extensions.showReceivedMessageNotification
 import org.fossify.messages.extensions.updateConversationArchivedStatus
+import org.fossify.messages.extensions.vaultContactDB
+import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.ReceiverUtils.isMessageFilteredOut
 import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
@@ -50,8 +52,49 @@ class MmsReceiver : MmsReceivedReceiver() {
         } ?: return
 
         val address = mms.getSender()?.phoneNumbers?.firstOrNull()?.normalizedNumber ?: mms.senderPhoneNumber
-        val size = context.resources.getDimension(R.dimen.notification_large_icon_size).toInt()
+        
         ensureBackgroundThread {
+            // Vault check
+            val vaultContact = context.vaultContactDB.getByPhoneNumber(address)
+            if (vaultContact != null) {
+                val vaultMessage = org.fossify.messages.models.VaultMessage(
+                    phoneNumber = address,
+                    body = mms.body.ifBlank { "MMS Attachment" },
+                    date = System.currentTimeMillis(),
+                    type = android.provider.Telephony.Sms.MESSAGE_TYPE_INBOX,
+                    read = false,
+                    isMms = true,
+                    destroyAfterMs = if (vaultContact.interactionPolicy == 2) 3600000L else 0L
+                )
+                context.vaultMessageDB.insert(vaultMessage)
+
+                if (vaultContact.interactionPolicy == 1) {
+                    val intentToMain = android.content.Intent(context, org.fossify.messages.activities.MainActivity::class.java).apply {
+                        flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    val pendingIntent = android.app.PendingIntent.getActivity(
+                        context, 0, intentToMain, 
+                        android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+                    )
+                    val builder = androidx.core.app.NotificationCompat.Builder(context, "vault_channel_id")
+                        .setSmallIcon(org.fossify.messages.R.mipmap.ic_launcher)
+                        .setContentTitle(context.getString(org.fossify.messages.R.string.messages))
+                        .setContentText("Tem uma mensagem nova")
+                        .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        
+                    val notificationManager = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        val channel = android.app.NotificationChannel("vault_channel_id", "Messages", android.app.NotificationManager.IMPORTANCE_DEFAULT)
+                        notificationManager.createNotificationChannel(channel)
+                    }
+                    notificationManager.notify(vaultContact.id.toInt(), builder.build())
+                }
+                return@ensureBackgroundThread
+            }
+
+            val size = context.resources.getDimension(R.dimen.notification_large_icon_size).toInt()
             handleMmsMessage(context, mms, size, address)
         }
     }
