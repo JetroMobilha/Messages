@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <!-- Permissão para Proteger o Content Provider (Só o Phone Pro acede) -->
+    <permission
+        android:name="org.fossify.messages.permission.READ_VAULT"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
@@ -276,6 +281,13 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name=".providers.VaultFilterProvider"
+            android:authorities="${applicationId}.vault_provider"
+            android:exported="true"
+            android:readPermission="org.fossify.messages.permission.READ_VAULT"
+            android:writePermission="org.fossify.messages.permission.READ_VAULT" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
