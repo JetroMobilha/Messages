@@ -187,9 +187,4 @@ class VaultSettingsActivity : SimpleActivity() {
         refreshPermissionsUI()
         refreshHealthStatus()
     }
-
-    override fun onPause() {
-        super.onPause()
-        finish()
-    }
 }

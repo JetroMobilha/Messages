@@ -13,7 +13,7 @@ import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.extensions.viewBinding
 import org.fossify.commons.helpers.ensureBackgroundThread
-import org.fossify.messages.adapters.VaultCallsAdapter
+
 import org.fossify.messages.adapters.VaultContactsAdapter
 import org.fossify.messages.databinding.ActivityVaultBinding
 import org.fossify.messages.databinding.DialogAddVaultContactBinding
@@ -26,7 +26,6 @@ class VaultActivity : SimpleActivity() {
 
     private val binding by viewBinding(ActivityVaultBinding::inflate)
     private var contactsAdapter: VaultContactsAdapter? = null
-    private var callsAdapter: VaultCallsAdapter? = null
     private var currentTabPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,14 +81,10 @@ class VaultActivity : SimpleActivity() {
         binding.vaultTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 currentTabPosition = tab?.position ?: 0
+                binding.vaultAddFab.beVisibleIf(true)
                 if (currentTabPosition == 0) {
-                    binding.vaultAddFab.beVisibleIf(true)
                     loadContacts()
-                } else if (currentTabPosition == 1) {
-                    binding.vaultAddFab.beGoneIf(true)
-                    loadBlockedCalls()
                 } else {
-                    binding.vaultAddFab.beVisibleIf(true)
                     loadKeywords()
                 }
             }
@@ -113,7 +108,7 @@ class VaultActivity : SimpleActivity() {
                 if (currentTabPosition == 0) {
                     loadContacts()
                 } else {
-                    loadBlockedCalls()
+                    loadKeywords()
                 }
                 return
             }
@@ -121,8 +116,6 @@ class VaultActivity : SimpleActivity() {
         
         if (currentTabPosition == 0) {
             loadContacts()
-        } else if (currentTabPosition == 1) {
-            loadBlockedCalls()
         } else {
             loadKeywords()
         }
@@ -143,24 +136,6 @@ class VaultActivity : SimpleActivity() {
                         onItemLongClick = { contact -> confirmDeleteContact(contact) }
                     )
                     binding.vaultConversationsList.adapter = contactsAdapter
-                }
-            } catch (e: Exception) {
-                // Prevent background database exceptions from crashing app
-            }
-        }
-    }
-
-    private fun loadBlockedCalls() {
-        ensureBackgroundThread {
-            try {
-                val calls = vaultCallDB.getAll()
-                runOnUiThread {
-                    if (isDestroyed || isFinishing) return@runOnUiThread
-                    binding.vaultPlaceholder.beGoneIf(calls.isNotEmpty())
-                    binding.vaultConversationsList.beVisibleIf(calls.isNotEmpty())
-
-                    callsAdapter = VaultCallsAdapter(calls)
-                    binding.vaultConversationsList.adapter = callsAdapter
                 }
             } catch (e: Exception) {
                 // Prevent background database exceptions from crashing app
@@ -304,7 +279,20 @@ class VaultActivity : SimpleActivity() {
             .show()
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1002 && grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            showCallLogPicker()
+        }
+    }
+
     private fun showCallLogPicker() {
+        val hasCallLogPerm = androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CALL_LOG) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!hasCallLogPerm) {
+            requestPermissions(arrayOf(android.Manifest.permission.READ_CALL_LOG, android.Manifest.permission.WRITE_CALL_LOG), 1002)
+            return
+        }
+
         ensureBackgroundThread {
             try {
                 val projection = arrayOf(
@@ -450,10 +438,5 @@ class VaultActivity : SimpleActivity() {
         }
 
         alertDialog.show()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        finish()
     }
 }

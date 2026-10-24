@@ -106,9 +106,6 @@ val Context.vaultContactDB: org.fossify.messages.interfaces.VaultContactDao
 val Context.vaultMessageDB: org.fossify.messages.interfaces.VaultMessageDao
     get() = getMessagesDB().VaultMessageDao()
 
-val Context.vaultCallDB: org.fossify.messages.interfaces.VaultCallDao
-    get() = getMessagesDB().VaultCallDao()
-
 val Context.vaultKeywordDB: org.fossify.messages.interfaces.VaultKeywordDao
     get() = getMessagesDB().VaultKeywordDao()
 

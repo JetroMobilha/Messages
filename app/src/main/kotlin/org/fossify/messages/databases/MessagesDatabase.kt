@@ -20,12 +20,10 @@ import org.fossify.messages.models.Draft
 import org.fossify.messages.models.Message
 import org.fossify.messages.models.MessageAttachment
 import org.fossify.messages.models.RecycleBinMessage
-import org.fossify.messages.models.VaultCall
-import org.fossify.messages.models.VaultContact
-import org.fossify.messages.models.VaultMessage
-import org.fossify.messages.interfaces.VaultCallDao
 import org.fossify.messages.interfaces.VaultContactDao
 import org.fossify.messages.interfaces.VaultMessageDao
+import org.fossify.messages.models.VaultContact
+import org.fossify.messages.models.VaultMessage
 
 @Database(
     entities = [
@@ -37,10 +35,9 @@ import org.fossify.messages.interfaces.VaultMessageDao
         Draft::class,
         VaultContact::class,
         VaultMessage::class,
-        VaultCall::class,
         org.fossify.messages.models.VaultKeyword::class
     ],
-    version = 15
+    version = 16
 )
 @TypeConverters(Converters::class)
 abstract class MessagesDatabase : RoomDatabase() {
@@ -58,8 +55,6 @@ abstract class MessagesDatabase : RoomDatabase() {
     abstract fun VaultContactDao(): VaultContactDao
 
     abstract fun VaultMessageDao(): VaultMessageDao
-
-    abstract fun VaultCallDao(): VaultCallDao
 
     abstract fun VaultKeywordDao(): org.fossify.messages.interfaces.VaultKeywordDao
 
@@ -90,6 +85,7 @@ abstract class MessagesDatabase : RoomDatabase() {
                             .addMigrations(MIGRATION_12_13)
                             .addMigrations(MIGRATION_13_14)
                             .addMigrations(MIGRATION_14_15)
+                            .addMigrations(MIGRATION_15_16)
                             .build()
                     }
                 }
@@ -229,6 +225,12 @@ abstract class MessagesDatabase : RoomDatabase() {
                     execSQL("ALTER TABLE vault_contacts ADD COLUMN group_name TEXT NOT NULL DEFAULT 'Geral'")
                     execSQL("ALTER TABLE vault_contacts ADD COLUMN block_calls INTEGER NOT NULL DEFAULT 1")
                 }
+            }
+        }
+
+        private val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `vault_calls`")
             }
         }
     }
