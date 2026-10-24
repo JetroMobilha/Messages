@@ -43,6 +43,27 @@
                 android:inputType="phone" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/add_vault_contact_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Grupo / Pasta (Opcional)"
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/add_vault_contact_block_calls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Bloquear também as Chamadas"
+            android:layout_marginBottom="16dp" />
+
         <org.fossify.commons.views.MyTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

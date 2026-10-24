@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/vault_settings_holder"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/vault_settings_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="Definições do Cofre"
+        app:titleTextColor="@android:color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <org.fossify.commons.views.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Estado do Sistema e Limpeza"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:paddingBottom="8dp" />
+
+            <LinearLayout
+                android:id="@+id/vault_health_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#15000000"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/vault_health_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Status: Otimização Inativa"
+                    android:textStyle="bold"
+                    android:paddingBottom="4dp" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/vault_health_last_run"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Última Varredura: Nunca"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <org.fossify.commons.views.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Configuração de Acesso"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingBottom="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_change_pin_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Alterar PIN de Acesso" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_change_fake_pin_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="Alterar PIN de Emergência (Falso)" />
+
+            <org.fossify.commons.views.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Configuração de Limpeza de Fundo"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingBottom="8dp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/vault_sweeper_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Limpeza Automática (Background Sweeper)"
+                android:layout_marginBottom="12dp" />
+
+            <org.fossify.commons.views.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Frequência (minutos):"
+                android:textSize="14sp" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/vault_sweeper_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:valueFrom="15"
+                android:valueTo="1440"
+                android:stepSize="15"
+                android:value="15"
+                android:layout_marginBottom="24dp" />
+
+            <org.fossify.commons.views.MyTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Privacidade e Permissões"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_perm_battery_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Ignorar Otimização de Bateria" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_perm_call_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Permissão de Registo de Chamadas" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_perm_contacts_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Permissão de Contactos" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/vault_perm_role_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Filtro de Chamadas (Call Screening)" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -525,13 +525,15 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun searchTextChanged(text: String, forceUpdate: Boolean = false) {
-        if (text == "0000") { // Real Vault Trigger
+        val vaultConfig = org.fossify.messages.helpers.VaultConfig.getInstance(this)
+        
+        if (text == vaultConfig.vaultPin) { // Real Vault Trigger
             startActivity(Intent(this, org.fossify.messages.activities.VaultActivity::class.java))
             binding.mainMenu.closeSearch()
             return
         }
 
-        if (text == "9999") { // Duress PIN (Fake Vault Trigger for coercion protection)
+        if (text == vaultConfig.fakeVaultPin) { // Duress PIN (Fake Vault Trigger for coercion protection)
             startActivity(Intent(this, org.fossify.messages.activities.FakeVaultActivity::class.java))
             binding.mainMenu.closeSearch()
             return

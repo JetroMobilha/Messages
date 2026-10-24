@@ -29,6 +29,18 @@ class VaultContactsAdapter(
                 2 -> "Autodestruição"
                 else -> "Furtivo"
             }
+            vaultContactGroup.text = contact.groupName
+
+            if (contact.blockCalls) {
+                vaultContactBlockIcon.visibility = android.view.View.VISIBLE
+            } else {
+                vaultContactBlockIcon.visibility = android.view.View.GONE
+            }
+
+            vaultContactDialerBtn.setOnClickListener {
+                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:${contact.phoneNumber}"))
+                it.context.startActivity(intent)
+            }
 
             root.setOnClickListener { onItemClick(contact) }
             root.setOnLongClickListener {

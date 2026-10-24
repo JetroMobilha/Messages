@@ -10,5 +10,7 @@ data class VaultContact(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "phone_number") val phoneNumber: String,
     @ColumnInfo(name = "added_date") val addedDate: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "interaction_policy") val interactionPolicy: Int = 0 // 0=Furtivo, 1=Discreto, 2=Autodestruição
+    @ColumnInfo(name = "interaction_policy") val interactionPolicy: Int = 0, // 0=Furtivo, 1=Discreto, 2=Autodestruição
+    @ColumnInfo(name = "group_name") val groupName: String = "Geral",
+    @ColumnInfo(name = "block_calls") val blockCalls: Boolean = true
 )

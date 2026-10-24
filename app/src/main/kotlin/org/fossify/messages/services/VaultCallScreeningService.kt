@@ -23,8 +23,8 @@ class VaultCallScreeningService : CallScreeningService() {
         ensureBackgroundThread {
             try {
                 val vaultContact = applicationContext.vaultContactDB.getByPhoneNumber(phoneNumber)
-                if (vaultContact != null) {
-                    // Number is in Vault -> Intercept and Reject
+                if (vaultContact != null && vaultContact.blockCalls) {
+                    // Number is in Vault and Block Calls is TRUE -> Intercept and Reject
                     val response = CallResponse.Builder()
                         .setDisallowCall(true)
                         .setRejectCall(true)
@@ -42,7 +42,7 @@ class VaultCallScreeningService : CallScreeningService() {
                     )
                     applicationContext.vaultCallDB.insert(vaultCall)
                 } else {
-                    // Normal call -> Allow
+                    // Normal call OR Vault Contact with blockCalls=false -> Allow
                     respondToCall(callDetails, CallResponse.Builder().build())
                 }
             } catch (_: Exception) {

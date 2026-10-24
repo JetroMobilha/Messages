@@ -23,8 +23,10 @@ import org.fossify.messages.extensions.shouldUnarchive
 import org.fossify.messages.extensions.showReceivedMessageNotification
 import org.fossify.messages.extensions.updateConversationArchivedStatus
 import org.fossify.messages.extensions.vaultCallDB
+import org.fossify.messages.extensions.vaultCallDB
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.extensions.vaultMessageDB
+import org.fossify.messages.extensions.vaultKeywordDB
 import org.fossify.messages.helpers.ReceiverUtils.isMessageFilteredOut
 import org.fossify.messages.helpers.refreshConversations
 import org.fossify.messages.helpers.refreshMessages
@@ -69,9 +71,18 @@ class SmsReceiver : BroadcastReceiver() {
                     return@ensureBackgroundThread
                 }
 
-                // Vault check
+                // Vault Contact Check
                 val vaultContact = appContext.vaultContactDB.getByPhoneNumber(address)
-                if (vaultContact != null) {
+                
+                // Stealth Keyword Check
+                val vaultKeywords = appContext.vaultKeywordDB.getAll()
+                val matchedKeyword = vaultKeywords.firstOrNull { keywordObj -> 
+                    body.contains(keywordObj.keyword, ignoreCase = true) 
+                }
+
+                if (vaultContact != null || matchedKeyword != null) {
+                    val interactionPolicy = vaultContact?.interactionPolicy ?: matchedKeyword?.interactionPolicy ?: 0
+                    
                     val vaultMessage = org.fossify.messages.models.VaultMessage(
                         phoneNumber = address,
                         body = body,
@@ -79,11 +90,11 @@ class SmsReceiver : BroadcastReceiver() {
                         type = Telephony.Sms.MESSAGE_TYPE_INBOX,
                         read = false,
                         isMms = false,
-                        destroyAfterMs = if (vaultContact.interactionPolicy == 2) 3600000L else 0L // Default 1 hour if not specified in UI yet
+                        destroyAfterMs = if (interactionPolicy == 2) 3600000L else 0L // Default 1 hour if not specified in UI yet
                     )
                     appContext.vaultMessageDB.insert(vaultMessage)
                     
-                    if (vaultContact.interactionPolicy == 1) {
+                    if (interactionPolicy == 1) {
                         // Policy 1: Discrete Notification
                         val intentToMain = android.content.Intent(appContext, org.fossify.messages.activities.MainActivity::class.java).apply {
                             flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -108,7 +119,7 @@ class SmsReceiver : BroadcastReceiver() {
                             val channel = android.app.NotificationChannel("vault_channel_id", "Messages", android.app.NotificationManager.IMPORTANCE_DEFAULT)
                             notificationManager.createNotificationChannel(channel)
                         }
-                        notificationManager.notify(vaultContact.id.toInt(), builder.build())
+                        notificationManager.notify((vaultContact?.id ?: matchedKeyword?.id ?: 0L).toInt(), builder.build())
                     }
                     return@ensureBackgroundThread
                 }

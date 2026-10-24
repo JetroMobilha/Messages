@@ -109,6 +109,9 @@ val Context.vaultMessageDB: org.fossify.messages.interfaces.VaultMessageDao
 val Context.vaultCallDB: org.fossify.messages.interfaces.VaultCallDao
     get() = getMessagesDB().VaultCallDao()
 
+val Context.vaultKeywordDB: org.fossify.messages.interfaces.VaultKeywordDao
+    get() = getMessagesDB().VaultKeywordDao()
+
 val Context.notificationHelper
     get() = NotificationHelper(this)
 

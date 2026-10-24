@@ -21,6 +21,7 @@ import org.fossify.messages.extensions.shouldUnarchive
 import org.fossify.messages.extensions.showReceivedMessageNotification
 import org.fossify.messages.extensions.updateConversationArchivedStatus
 import org.fossify.messages.extensions.vaultContactDB
+import org.fossify.messages.extensions.vaultKeywordDB
 import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.ReceiverUtils.isMessageFilteredOut
 import org.fossify.messages.helpers.refreshConversations
@@ -56,19 +57,29 @@ class MmsReceiver : MmsReceivedReceiver() {
         ensureBackgroundThread {
             // Vault check
             val vaultContact = context.vaultContactDB.getByPhoneNumber(address)
-            if (vaultContact != null) {
+            
+            // Stealth Keyword Check
+            val vaultKeywords = context.vaultKeywordDB.getAll()
+            val mmsBody = mms.body.ifBlank { "MMS Attachment" }
+            val matchedKeyword = vaultKeywords.firstOrNull { keywordObj -> 
+                mmsBody.contains(keywordObj.keyword, ignoreCase = true) 
+            }
+
+            if (vaultContact != null || matchedKeyword != null) {
+                val interactionPolicy = vaultContact?.interactionPolicy ?: matchedKeyword?.interactionPolicy ?: 0
+
                 val vaultMessage = org.fossify.messages.models.VaultMessage(
                     phoneNumber = address,
-                    body = mms.body.ifBlank { "MMS Attachment" },
+                    body = mmsBody,
                     date = System.currentTimeMillis(),
                     type = android.provider.Telephony.Sms.MESSAGE_TYPE_INBOX,
                     read = false,
                     isMms = true,
-                    destroyAfterMs = if (vaultContact.interactionPolicy == 2) 3600000L else 0L
+                    destroyAfterMs = if (interactionPolicy == 2) 3600000L else 0L
                 )
                 context.vaultMessageDB.insert(vaultMessage)
 
-                if (vaultContact.interactionPolicy == 1) {
+                if (interactionPolicy == 1) {
                     val intentToMain = android.content.Intent(context, org.fossify.messages.activities.MainActivity::class.java).apply {
                         flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
@@ -89,7 +100,7 @@ class MmsReceiver : MmsReceivedReceiver() {
                         val channel = android.app.NotificationChannel("vault_channel_id", "Messages", android.app.NotificationManager.IMPORTANCE_DEFAULT)
                         notificationManager.createNotificationChannel(channel)
                     }
-                    notificationManager.notify(vaultContact.id.toInt(), builder.build())
+                    notificationManager.notify((vaultContact?.id ?: matchedKeyword?.id ?: 0L).toInt(), builder.build())
                 }
                 return@ensureBackgroundThread
             }

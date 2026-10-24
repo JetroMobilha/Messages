@@ -3,11 +3,37 @@ package org.fossify.messages.helpers
 import android.content.Context
 import android.provider.CallLog
 import android.provider.Telephony
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.messages.extensions.conversationsDB
+import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.extensions.vaultMessageDB
+import org.fossify.messages.workers.VaultCleanupWorker
+import java.util.concurrent.TimeUnit
 
 object VaultCleanupHelper {
+    private const val SWEEPER_WORK_NAME = "VaultSweeperWork"
+
+    fun scheduleSweeper(context: Context, intervalMinutes: Int) {
+        val workRequest = PeriodicWorkRequest.Builder(
+            VaultCleanupWorker::class.java,
+            intervalMinutes.toLong(), TimeUnit.MINUTES
+        ).build()
+
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            SWEEPER_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            workRequest
+        )
+    }
+
+    fun cancelSweeper(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(SWEEPER_WORK_NAME)
+    }
+
     fun runCleanup(context: Context) {
         ensureBackgroundThread {
             // Delete expired Vault messages (Self-destruct policy)
@@ -43,8 +69,16 @@ object VaultCleanupHelper {
                 // Ignore permissions or other issues
             }
 
-            // Scrub SMS
+            // Scrub SMS and Local DB Conversations
             try {
+                vaultNumbers.forEach { phone ->
+                    val threadId = context.conversationsDB.getThreadIdByNumber(phone)
+                    if (threadId != null) {
+                        context.messagesDB.deleteThreadMessages(threadId)
+                        context.conversationsDB.deleteConversationByNumber(phone)
+                    }
+                }
+
                 context.contentResolver.query(
                     Telephony.Sms.CONTENT_URI,
                     arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS),

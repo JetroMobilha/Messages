@@ -56,4 +56,10 @@ interface ConversationsDao {
 
     @Query("DELETE FROM conversations WHERE thread_id = :threadId")
     fun deleteThreadId(threadId: Long)
+
+    @Query("SELECT thread_id FROM conversations WHERE phone_number LIKE '%' || :phone || '%' LIMIT 1")
+    fun getThreadIdByNumber(phone: String): Long?
+
+    @Query("DELETE FROM conversations WHERE phone_number LIKE '%' || :phone || '%'")
+    fun deleteConversationByNumber(phone: String)
 }

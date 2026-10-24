@@ -37,9 +37,10 @@ import org.fossify.messages.interfaces.VaultMessageDao
         Draft::class,
         VaultContact::class,
         VaultMessage::class,
-        VaultCall::class
+        VaultCall::class,
+        org.fossify.messages.models.VaultKeyword::class
     ],
-    version = 13
+    version = 15
 )
 @TypeConverters(Converters::class)
 abstract class MessagesDatabase : RoomDatabase() {
@@ -59,6 +60,8 @@ abstract class MessagesDatabase : RoomDatabase() {
     abstract fun VaultMessageDao(): VaultMessageDao
 
     abstract fun VaultCallDao(): VaultCallDao
+
+    abstract fun VaultKeywordDao(): org.fossify.messages.interfaces.VaultKeywordDao
 
     companion object {
         private var db: MessagesDatabase? = null
@@ -85,6 +88,8 @@ abstract class MessagesDatabase : RoomDatabase() {
                             .addMigrations(MIGRATION_10_11)
                             .addMigrations(MIGRATION_11_12)
                             .addMigrations(MIGRATION_12_13)
+                            .addMigrations(MIGRATION_13_14)
+                            .addMigrations(MIGRATION_14_15)
                             .build()
                     }
                 }
@@ -208,6 +213,21 @@ abstract class MessagesDatabase : RoomDatabase() {
                     execSQL("ALTER TABLE vault_contacts ADD COLUMN interaction_policy INTEGER NOT NULL DEFAULT 0")
                     execSQL("ALTER TABLE vault_messages ADD COLUMN read_timestamp INTEGER NOT NULL DEFAULT 0")
                     execSQL("ALTER TABLE vault_messages ADD COLUMN destroy_after_ms INTEGER NOT NULL DEFAULT 0")
+                }
+            }
+        }
+
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `vault_keywords` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyword` TEXT NOT NULL, `interaction_policy` INTEGER NOT NULL DEFAULT 0)")
+            }
+        }
+
+        private val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.apply {
+                    execSQL("ALTER TABLE vault_contacts ADD COLUMN group_name TEXT NOT NULL DEFAULT 'Geral'")
+                    execSQL("ALTER TABLE vault_contacts ADD COLUMN block_calls INTEGER NOT NULL DEFAULT 1")
                 }
             }
         }
