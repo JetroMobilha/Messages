@@ -189,6 +189,7 @@ class VaultActivity : SimpleActivity() {
             .setPositiveButton("Remover") { _, _ ->
                 ensureBackgroundThread {
                     vaultContactDB.deleteByPhoneNumber(contact.phoneNumber)
+                    org.fossify.messages.helpers.VaultSyncManager.broadcastDelete(this, contact.phoneNumber)
                     loadContacts()
                 }
             }
@@ -373,6 +374,7 @@ class VaultActivity : SimpleActivity() {
                             blockCalls = blockCalls
                         )
                         vaultContactDB.insert(newContact)
+                        org.fossify.messages.helpers.VaultSyncManager.broadcastUpsert(this, newContact)
                         org.fossify.messages.helpers.VaultCleanupHelper.runCleanup(this)
                         loadContacts()
                     }

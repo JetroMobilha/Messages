@@ -282,12 +282,16 @@
             </intent-filter>
         </receiver>
 
-        <provider
-            android:name=".providers.VaultFilterProvider"
-            android:authorities="${applicationId}.vault_provider"
+        <receiver
+            android:name=".receivers.VaultSyncReceiver"
+            android:enabled="true"
             android:exported="true"
-            android:readPermission="org.fossify.messages.permission.READ_VAULT"
-            android:writePermission="org.fossify.messages.permission.READ_VAULT" />
+            android:permission="org.fossify.permission.SYNC_VAULT">
+            <intent-filter>
+                <action android:name="org.fossify.sync.VAULT_CONTACT_UPSERT" />
+                <action android:name="org.fossify.sync.VAULT_CONTACT_DELETE" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="androidx.core.content.FileProvider"
