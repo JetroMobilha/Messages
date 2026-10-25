@@ -17,7 +17,6 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.adapters.VaultContactsAdapter
 import org.fossify.messages.databinding.ActivityVaultBinding
 import org.fossify.messages.databinding.DialogAddVaultContactBinding
-import org.fossify.messages.extensions.vaultCallDB
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.extensions.vaultKeywordDB
 import org.fossify.messages.models.VaultContact
@@ -125,14 +124,15 @@ class VaultActivity : SimpleActivity() {
     private fun loadContacts() {
         ensureBackgroundThread {
             try {
-                val contacts = vaultContactDB.getAll()
+                val contactsWithSnippets = vaultContactDB.getAllWithSnippets()
                 runOnUiThread {
                     if (isDestroyed || isFinishing) return@runOnUiThread
-                    binding.vaultPlaceholder.beGoneIf(contacts.isNotEmpty())
-                    binding.vaultConversationsList.beVisibleIf(contacts.isNotEmpty())
+                    binding.vaultPlaceholder.beGoneIf(contactsWithSnippets.isNotEmpty())
+                    binding.vaultConversationsList.beVisibleIf(contactsWithSnippets.isNotEmpty())
 
                     contactsAdapter = VaultContactsAdapter(
-                        contacts = contacts,
+                        activity = this,
+                        contacts = contactsWithSnippets,
                         onItemClick = { contact -> openVaultThread(contact) },
                         onItemLongClick = { contact -> confirmDeleteContact(contact) }
                     )

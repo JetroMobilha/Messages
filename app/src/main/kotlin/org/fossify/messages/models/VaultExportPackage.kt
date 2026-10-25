@@ -8,6 +8,5 @@ data class VaultExportPackage(
     @SerializedName("sms") val sms: List<SmsBackup>? = null,
     @SerializedName("mms") val mms: List<MmsBackup>? = null,
     @SerializedName("vault_contacts") val vaultContacts: List<VaultContact>? = null,
-    @SerializedName("vault_messages") val vaultMessages: List<VaultMessage>? = null,
-    @SerializedName("vault_calls") val vaultCalls: List<VaultCall>? = null
+    @SerializedName("vault_messages") val vaultMessages: List<VaultMessage>? = null
 )

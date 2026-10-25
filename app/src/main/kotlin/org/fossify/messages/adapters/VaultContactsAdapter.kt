@@ -3,11 +3,19 @@ package org.fossify.messages.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import org.fossify.commons.extensions.beVisibleIf
+import org.fossify.commons.helpers.SimpleContactsHelper
+import org.fossify.messages.activities.SimpleActivity
 import org.fossify.messages.databinding.ItemVaultContactBinding
 import org.fossify.messages.models.VaultContact
+import org.fossify.messages.models.VaultContactWithSnippet
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class VaultContactsAdapter(
-    private var contacts: List<VaultContact>,
+    private val activity: SimpleActivity,
+    private var contacts: List<VaultContactWithSnippet>,
     private val onItemClick: (VaultContact) -> Unit,
     private val onItemLongClick: (VaultContact) -> Unit
 ) : RecyclerView.Adapter<VaultContactsAdapter.ViewHolder>() {
@@ -20,27 +28,24 @@ class VaultContactsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val contact = contacts[position]
+        val item = contacts[position]
+        val contact = item.contact
         holder.binding.apply {
             vaultContactName.text = contact.name.ifEmpty { contact.phoneNumber }
-            vaultContactNumber.text = contact.phoneNumber
-            vaultContactPolicy.text = when (contact.interactionPolicy) {
-                1 -> "Discreto"
-                2 -> "Autodestruição"
-                else -> "Furtivo"
-            }
-            vaultContactGroup.text = contact.groupName
-
-            if (contact.blockCalls) {
-                vaultContactBlockIcon.visibility = android.view.View.VISIBLE
+            vaultContactSnippet.text = item.snippet ?: contact.groupName
+            
+            if (item.date != null) {
+                vaultContactDate.text = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(item.date))
             } else {
-                vaultContactBlockIcon.visibility = android.view.View.GONE
+                vaultContactDate.text = ""
             }
 
-            vaultContactDialerBtn.setOnClickListener {
-                val intent = android.content.Intent(android.content.Intent.ACTION_DIAL, android.net.Uri.parse("tel:${contact.phoneNumber}"))
-                it.context.startActivity(intent)
-            }
+            vaultContactUnreadCount.text = item.unreadCount.toString()
+            vaultContactUnreadCount.beVisibleIf(item.unreadCount > 0)
+            vaultContactBlockIcon.beVisibleIf(contact.blockCalls)
+
+            val photoUri = SimpleContactsHelper(activity).getPhotoUriFromPhoneNumber(contact.phoneNumber)
+            SimpleContactsHelper(activity).loadContactImage(photoUri, vaultContactImage, contact.name)
 
             root.setOnClickListener { onItemClick(contact) }
             root.setOnLongClickListener {
@@ -52,7 +57,7 @@ class VaultContactsAdapter(
 
     override fun getItemCount(): Int = contacts.size
 
-    fun updateData(newContacts: List<VaultContact>) {
+    fun updateData(newContacts: List<VaultContactWithSnippet>) {
         contacts = newContacts
         notifyDataSetChanged()
     }

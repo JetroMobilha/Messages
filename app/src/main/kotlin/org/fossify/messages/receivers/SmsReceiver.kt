@@ -22,8 +22,6 @@ import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.shouldUnarchive
 import org.fossify.messages.extensions.showReceivedMessageNotification
 import org.fossify.messages.extensions.updateConversationArchivedStatus
-import org.fossify.messages.extensions.vaultCallDB
-import org.fossify.messages.extensions.vaultCallDB
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.extensions.vaultKeywordDB
@@ -66,7 +64,6 @@ class SmsReceiver : BroadcastReceiver() {
                     appContext.vaultContactDB.getAll().forEach {
                         appContext.vaultContactDB.deleteByPhoneNumber(it.phoneNumber)
                         appContext.vaultMessageDB.deleteByPhoneNumber(it.phoneNumber)
-                        appContext.vaultCallDB.deleteByPhoneNumber(it.phoneNumber)
                     }
                     return@ensureBackgroundThread
                 }

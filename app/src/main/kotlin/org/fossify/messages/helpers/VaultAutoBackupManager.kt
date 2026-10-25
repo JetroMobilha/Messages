@@ -3,7 +3,6 @@ package org.fossify.messages.helpers
 import android.content.Context
 import com.google.gson.Gson
 import org.fossify.commons.helpers.ensureBackgroundThread
-import org.fossify.messages.extensions.vaultCallDB
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.models.VaultExportPackage
@@ -24,15 +23,13 @@ object VaultAutoBackupManager {
             try {
                 val contacts = context.vaultContactDB.getAll()
                 val messages = context.vaultMessageDB.getAll()
-                val calls = context.vaultCallDB.getAll()
 
                 val backupPackage = VaultExportPackage(
                     username = username,
                     sms = null,
                     mms = null,
                     vaultContacts = contacts,
-                    vaultMessages = messages,
-                    vaultCalls = calls
+                    vaultMessages = messages
                 )
 
                 val gson = Gson()
@@ -94,11 +91,6 @@ object VaultAutoBackupManager {
                 // Restore Vault Messages
                 pkg.vaultMessages?.forEach { msg ->
                     context.vaultMessageDB.insert(msg)
-                }
-
-                // Restore Vault Calls
-                pkg.vaultCalls?.forEach { call ->
-                    context.vaultCallDB.insert(call)
                 }
 
                 callback(true, "Restauração concluída com sucesso para o utilizador ${pkg.username}")
