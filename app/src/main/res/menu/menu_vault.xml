@@ -2,6 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_vault_manage_contacts"
+        android:title="Gerir Filtros de Contacto"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_vault_manage_keywords"
+        android:title="Gerir Palavras Furtivas"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_vault_settings"
         android:title="Definições do Cofre"
         app:showAsAction="never" />

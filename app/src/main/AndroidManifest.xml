@@ -205,6 +205,16 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.ManageVaultContactsActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.ManageVaultKeywordsActivity"
+            android:theme="@style/AppTheme"
+            android:exported="false" />
+
+        <activity
             android:name=".activities.VaultThreadActivity"
             android:theme="@style/AppTheme"
             android:exported="false"

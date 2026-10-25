@@ -10,30 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/vault_tabs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/vault_menu"
-        app:tabMode="fixed"
-        app:tabGravity="fill">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mensagens" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Palavras Furtivas" />
-    </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/vault_conversations_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/vault_tabs"
+        android:layout_below="@id/vault_menu"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
@@ -54,7 +37,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:contentDescription="Adicionar Contacto"
+        android:contentDescription="Nova Mensagem Secreta"
         android:src="@drawable/ic_plus_vector"
         app:fabSize="normal" />
 

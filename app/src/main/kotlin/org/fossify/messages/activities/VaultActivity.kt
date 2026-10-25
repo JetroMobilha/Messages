@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
-import com.google.android.material.tabs.TabLayout
 import org.fossify.commons.extensions.beGoneIf
 import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.getProperBackgroundColor
@@ -25,7 +24,6 @@ class VaultActivity : SimpleActivity() {
 
     private val binding by viewBinding(ActivityVaultBinding::inflate)
     private var contactsAdapter: VaultContactsAdapter? = null
-    private var currentTabPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,48 +47,28 @@ class VaultActivity : SimpleActivity() {
         val toolbar = binding.vaultMenu.findViewById<androidx.appcompat.widget.Toolbar>(org.fossify.commons.R.id.top_toolbar)
         toolbar?.inflateMenu(org.fossify.messages.R.menu.menu_vault)
         toolbar?.setOnMenuItemClickListener { item ->
-            if (item.itemId == org.fossify.messages.R.id.action_vault_settings) {
-                startActivity(Intent(this, VaultSettingsActivity::class.java))
-                true
-            } else {
-                false
+            when (item.itemId) {
+                org.fossify.messages.R.id.action_vault_settings -> {
+                    startActivity(Intent(this, VaultSettingsActivity::class.java))
+                    true
+                }
+                org.fossify.messages.R.id.action_vault_manage_contacts -> {
+                    startActivity(Intent(this, ManageVaultContactsActivity::class.java))
+                    true
+                }
+                org.fossify.messages.R.id.action_vault_manage_keywords -> {
+                    startActivity(Intent(this, ManageVaultKeywordsActivity::class.java))
+                    true
+                }
+                else -> false
             }
         }
 
         binding.vaultAddFab.setOnClickListener {
-            if (currentTabPosition == 2) {
-                showAddKeywordDialog()
-                return@setOnClickListener
-            }
-
-            ensureBackgroundThread {
-                val contacts = vaultContactDB.getAll()
-                runOnUiThread {
-                    if (org.fossify.messages.helpers.MonetizationConfig.isLimitReached(contacts.size)) {
-                        org.fossify.messages.dialogs.DialogUnlockVault(this) {
-                            showSourceSelectionDialog()
-                        }.show()
-                    } else {
-                        showSourceSelectionDialog()
-                    }
-                }
-            }
+            val intent = Intent(this, NewConversationActivity::class.java)
+            intent.putExtra("is_vault_mode", true)
+            startActivity(intent)
         }
-
-        binding.vaultTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                currentTabPosition = tab?.position ?: 0
-                binding.vaultAddFab.beVisibleIf(true)
-                if (currentTabPosition == 0) {
-                    loadContacts()
-                } else {
-                    loadKeywords()
-                }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
     }
 
     override fun onResume() {
@@ -105,20 +83,12 @@ class VaultActivity : SimpleActivity() {
             val biometricManager = getSystemService(android.hardware.biometrics.BiometricManager::class.java)
             if (biometricManager != null) {
                 // Biometrics available
-                if (currentTabPosition == 0) {
-                    loadContacts()
-                } else {
-                    loadKeywords()
-                }
+                loadContacts()
                 return
             }
         }
         
-        if (currentTabPosition == 0) {
-            loadContacts()
-        } else {
-            loadKeywords()
-        }
+        loadContacts()
     }
 
     private fun loadContacts() {
