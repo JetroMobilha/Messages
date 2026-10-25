@@ -15,6 +15,9 @@ class VaultBootReceiver : BroadcastReceiver() {
             if (vaultConfig.backgroundSweeperEnabled) {
                 VaultCleanupHelper.scheduleSweeper(context, vaultConfig.sweeperIntervalMinutes)
             }
+            // Request a full sync from peer apps to catch up on any missed contacts
+            org.fossify.messages.helpers.VaultSyncManager.requestFullSync(context)
+            
             // Run an immediate purge check upon boot
             VaultCleanupHelper.runCleanup(context)
         }

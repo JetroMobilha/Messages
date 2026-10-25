@@ -290,6 +290,8 @@
             <intent-filter>
                 <action android:name="org.fossify.sync.VAULT_CONTACT_UPSERT" />
                 <action android:name="org.fossify.sync.VAULT_CONTACT_DELETE" />
+                <action android:name="org.fossify.sync.REQUEST_FULL_SYNC" />
+                <action android:name="org.fossify.sync.FULL_SYNC_PAYLOAD" />
             </intent-filter>
         </receiver>
 

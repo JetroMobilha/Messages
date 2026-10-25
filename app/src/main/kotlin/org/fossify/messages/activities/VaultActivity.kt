@@ -97,6 +97,7 @@ class VaultActivity : SimpleActivity() {
     override fun onResume() {
         super.onResume()
         setupTheme()
+        org.fossify.messages.helpers.VaultSyncManager.requestFullSync(this)
         checkBiometricsAndLoad()
     }
 

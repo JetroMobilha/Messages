@@ -51,6 +51,35 @@ class VaultSyncReceiver : BroadcastReceiver() {
                     val phone = intent.getStringExtra("phone_number") ?: return@ensureBackgroundThread
                     context.vaultContactDB.deleteByPhoneNumber(phone)
                 }
+                VaultSyncManager.ACTION_REQUEST_FULL_SYNC -> {
+                    // Send our full database back to the requester
+                    val contacts = context.vaultContactDB.getAll()
+                    if (contacts.isNotEmpty()) {
+                        VaultSyncManager.broadcastFullSyncPayload(context, contacts)
+                    }
+                }
+                VaultSyncManager.ACTION_FULL_SYNC_PAYLOAD -> {
+                    // Parse the payload and insert any missing contacts
+                    val payload = intent.getStringExtra("payload") ?: return@ensureBackgroundThread
+                    try {
+                        val contactsType = object : com.google.gson.reflect.TypeToken<List<VaultContact>>() {}.type
+                        val receivedContacts: List<VaultContact> = com.google.gson.Gson().fromJson(payload, contactsType)
+
+                        var addedAny = false
+                        for (contact in receivedContacts) {
+                            if (context.vaultContactDB.getByPhoneNumber(contact.phoneNumber) == null) {
+                                context.vaultContactDB.insert(contact)
+                                addedAny = true
+                            }
+                        }
+                        
+                        if (addedAny) {
+                            VaultCleanupHelper.runCleanup(context)
+                        }
+                    } catch (e: Exception) {
+                        // Ignore JSON parsing errors
+                    }
+                }
             }
         }
     }
