@@ -202,8 +202,9 @@ class ManageVaultContactsActivity : SimpleActivity() {
                     while (cursor.moveToNext() && recentCalls.size < 20) {
                         val number = if (numberIdx >= 0) cursor.getString(numberIdx) else ""
                         val name = if (nameIdx >= 0) cursor.getString(nameIdx) else ""
+                        val cleanName = if (name.isNullOrBlank()) "Desconhecido" else name
                         if (number.isNotEmpty() && !recentCalls.any { it.second == number }) {
-                            recentCalls.add(Pair(name ?: "Desconhecido", number))
+                            recentCalls.add(Pair(cleanName, number))
                         }
                     }
                 }
