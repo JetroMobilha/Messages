@@ -21,6 +21,7 @@ import org.fossify.messages.extensions.vaultKeywordDB
 import org.fossify.messages.models.VaultContact
 
 class VaultActivity : SimpleActivity() {
+    override var isSearchBarEnabled = true
 
     private val binding by viewBinding(ActivityVaultBinding::inflate)
     private var contactsAdapter: VaultContactsAdapter? = null
@@ -34,6 +35,7 @@ class VaultActivity : SimpleActivity() {
         )
         setContentView(binding.root)
 
+        binding.vaultMenu.setupMenu()
         setupTheme()
         setupListeners()
     }
@@ -41,12 +43,14 @@ class VaultActivity : SimpleActivity() {
     private fun setupTheme() {
         binding.root.setBackgroundColor(getProperBackgroundColor())
         updateTextColors(binding.root)
+        val toolbar = binding.vaultMenu.requireToolbar()
+        toolbar.title = getString(org.fossify.messages.R.string.messages)
     }
 
     private fun setupListeners() {
-        val toolbar = binding.vaultMenu.findViewById<androidx.appcompat.widget.Toolbar>(org.fossify.commons.R.id.top_toolbar)
-        toolbar?.inflateMenu(org.fossify.messages.R.menu.menu_vault)
-        toolbar?.setOnMenuItemClickListener { item ->
+        val toolbar = binding.vaultMenu.requireToolbar()
+        toolbar.inflateMenu(org.fossify.messages.R.menu.menu_vault)
+        toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 org.fossify.messages.R.id.action_vault_settings -> {
                     startActivity(Intent(this, VaultSettingsActivity::class.java))
@@ -62,6 +66,13 @@ class VaultActivity : SimpleActivity() {
                 }
                 else -> false
             }
+        }
+
+        binding.vaultMenu.onSearchTextChangedListener = { text ->
+            // Filter logic here or just let the user type
+        }
+        binding.vaultMenu.onSearchClosedListener = {
+            // Unfilter
         }
 
         binding.vaultAddFab.setOnClickListener {

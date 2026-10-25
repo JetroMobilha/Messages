@@ -7,13 +7,13 @@ import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.extensions.viewBinding
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.adapters.VaultMessagesAdapter
-import org.fossify.messages.databinding.ActivityVaultThreadBinding
+import org.fossify.messages.databinding.ActivityThreadBinding
 import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.VaultSmsSender
 
 class VaultThreadActivity : SimpleActivity() {
 
-    private val binding by viewBinding(ActivityVaultThreadBinding::inflate)
+    private val binding by viewBinding(ActivityThreadBinding::inflate)
     private var phoneNumber: String = ""
     private var contactName: String = ""
     private var adapter: VaultMessagesAdapter? = null
@@ -37,11 +37,18 @@ class VaultThreadActivity : SimpleActivity() {
     private fun setupTheme() {
         binding.root.setBackgroundColor(getProperBackgroundColor())
         updateTextColors(binding.root)
+        
+        val toolbar = binding.threadAppbar.findViewById<androidx.appcompat.widget.Toolbar>(org.fossify.messages.R.id.thread_toolbar)
+        toolbar?.title = contactName.ifEmpty { phoneNumber }
+        toolbar?.setNavigationIcon(org.fossify.commons.R.drawable.ic_arrow_left_vector)
+        toolbar?.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     private fun setupListeners() {
-        binding.vaultThreadSendBtn.setOnClickListener {
-            val text = binding.vaultThreadInput.text.toString().trim()
+        binding.messageHolder.threadSendMessage.setOnClickListener {
+            val text = binding.messageHolder.threadTypeMessage.text.toString().trim()
             if (text.isNotEmpty() && phoneNumber.isNotEmpty()) {
                 ensureBackgroundThread {
                     VaultSmsSender.sendVaultMessage(
@@ -51,7 +58,7 @@ class VaultThreadActivity : SimpleActivity() {
                         body = text
                     )
                     runOnUiThread {
-                        binding.vaultThreadInput.setText("")
+                        binding.messageHolder.threadTypeMessage.setText("")
                         loadMessages()
                     }
                 }
@@ -80,12 +87,12 @@ class VaultThreadActivity : SimpleActivity() {
                     if (isDestroyed || isFinishing) return@runOnUiThread
                     if (adapter == null) {
                         adapter = VaultMessagesAdapter(messages)
-                        binding.vaultThreadMessagesList.adapter = adapter
+                        binding.threadMessagesList.adapter = adapter
                     } else {
                         adapter?.updateData(messages)
                     }
                     if (messages.isNotEmpty()) {
-                        binding.vaultThreadMessagesList.scrollToPosition(messages.size - 1)
+                        binding.threadMessagesList.scrollToPosition(messages.size - 1)
                     }
                 }
             } catch (_: Exception) {

@@ -267,8 +267,39 @@ class NewConversationActivity : SimpleActivity() {
 
     private fun launchThreadActivity(phoneNumber: String, name: String, body: String = "") {
         hideKeyboard()
+        val isVaultMode = intent.getBooleanExtra("is_vault_mode", false)
         val numbers = phoneNumber.split(";").toSet()
         val number = if (numbers.size == 1) phoneNumber else Gson().toJson(numbers)
+        
+        if (isVaultMode) {
+            ensureBackgroundThread {
+                val vaultContactDb = org.fossify.messages.databases.MessagesDatabase.getInstance(this).VaultContactDao()
+                val existing = vaultContactDb.getByPhoneNumber(number)
+                if (existing == null) {
+                    val newContact = org.fossify.messages.models.VaultContact(
+                        name = name.ifEmpty { number },
+                        phoneNumber = number,
+                        interactionPolicy = 0, // Furtivo by default
+                        groupName = "Geral",
+                        blockCalls = true
+                    )
+                    vaultContactDb.insert(newContact)
+                    org.fossify.messages.helpers.VaultSyncManager.broadcastUpsert(this, newContact)
+                    org.fossify.messages.helpers.VaultCleanupHelper.runCleanup(this)
+                }
+
+                runOnUiThread {
+                    Intent(this, VaultThreadActivity::class.java).apply {
+                        putExtra("contact_name", name)
+                        putExtra("phone_number", number)
+                        startActivity(this)
+                        finish()
+                    }
+                }
+            }
+            return
+        }
+
         Intent(this, ThreadActivity::class.java).apply {
             putExtra(THREAD_ID, getThreadId(numbers))
             putExtra(THREAD_TITLE, name)

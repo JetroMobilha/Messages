@@ -19,6 +19,7 @@ import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.models.VaultContact
 
 class ManageVaultContactsActivity : SimpleActivity() {
+    override var isSearchBarEnabled = true
 
     private val binding by viewBinding(ActivityVaultBinding::inflate)
     private var contactsAdapter: VaultContactsAdapter? = null
@@ -31,6 +32,7 @@ class ManageVaultContactsActivity : SimpleActivity() {
         )
         setContentView(binding.root)
         
+        binding.vaultMenu.setupMenu()
         setupTheme()
         setupListeners()
     }
@@ -38,15 +40,18 @@ class ManageVaultContactsActivity : SimpleActivity() {
     private fun setupTheme() {
         binding.root.setBackgroundColor(getProperBackgroundColor())
         updateTextColors(binding.root)
-        val toolbar = binding.vaultMenu.findViewById<androidx.appcompat.widget.Toolbar>(org.fossify.commons.R.id.top_toolbar)
-        toolbar?.setNavigationIcon(org.fossify.commons.R.drawable.ic_arrow_left_vector)
-        toolbar?.title = "Gerir Filtros de Contacto"
-        toolbar?.setNavigationOnClickListener {
+        val toolbar = binding.vaultMenu.requireToolbar()
+        toolbar.setNavigationIcon(org.fossify.commons.R.drawable.ic_arrow_left_vector)
+        toolbar.title = "Gerir Filtros de Contacto"
+        toolbar.setNavigationOnClickListener {
             finish()
         }
     }
 
     private fun setupListeners() {
+        binding.vaultMenu.onSearchTextChangedListener = { text ->
+            // Optionally filter contacts here in the future
+        }
         binding.vaultAddFab.setOnClickListener {
             ensureBackgroundThread {
                 val contacts = vaultContactDB.getAll()
@@ -189,12 +194,12 @@ class ManageVaultContactsActivity : SimpleActivity() {
                     android.provider.CallLog.Calls.CONTENT_URI,
                     projection,
                     null, null,
-                    android.provider.CallLog.Calls.DATE + " DESC LIMIT 20"
+                    android.provider.CallLog.Calls.DATE + " DESC"
                 )?.use { cursor ->
                     val numberIdx = cursor.getColumnIndex(android.provider.CallLog.Calls.NUMBER)
                     val nameIdx = cursor.getColumnIndex(android.provider.CallLog.Calls.CACHED_NAME)
                     
-                    while (cursor.moveToNext()) {
+                    while (cursor.moveToNext() && recentCalls.size < 20) {
                         val number = if (numberIdx >= 0) cursor.getString(numberIdx) else ""
                         val name = if (nameIdx >= 0) cursor.getString(nameIdx) else ""
                         if (number.isNotEmpty() && !recentCalls.any { it.second == number }) {

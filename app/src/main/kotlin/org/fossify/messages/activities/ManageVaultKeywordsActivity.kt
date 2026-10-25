@@ -16,6 +16,7 @@ import org.fossify.messages.databinding.DialogAddVaultKeywordBinding
 import org.fossify.messages.extensions.vaultKeywordDB
 
 class ManageVaultKeywordsActivity : SimpleActivity() {
+    override var isSearchBarEnabled = true
 
     private val binding by viewBinding(ActivityVaultBinding::inflate)
 
@@ -27,6 +28,7 @@ class ManageVaultKeywordsActivity : SimpleActivity() {
         )
         setContentView(binding.root)
         
+        binding.vaultMenu.setupMenu()
         setupTheme()
         setupListeners()
     }
@@ -34,15 +36,18 @@ class ManageVaultKeywordsActivity : SimpleActivity() {
     private fun setupTheme() {
         binding.root.setBackgroundColor(getProperBackgroundColor())
         updateTextColors(binding.root)
-        val toolbar = binding.vaultMenu.findViewById<androidx.appcompat.widget.Toolbar>(org.fossify.commons.R.id.top_toolbar)
-        toolbar?.setNavigationIcon(org.fossify.commons.R.drawable.ic_arrow_left_vector)
-        toolbar?.title = "Gerir Palavras Furtivas"
-        toolbar?.setNavigationOnClickListener {
+        val toolbar = binding.vaultMenu.requireToolbar()
+        toolbar.setNavigationIcon(org.fossify.commons.R.drawable.ic_arrow_left_vector)
+        toolbar.title = "Gerir Palavras Furtivas"
+        toolbar.setNavigationOnClickListener {
             finish()
         }
     }
 
     private fun setupListeners() {
+        binding.vaultMenu.onSearchTextChangedListener = { text ->
+            // Optionally filter keywords here in the future
+        }
         binding.vaultAddFab.setOnClickListener {
             showAddKeywordDialog()
         }
