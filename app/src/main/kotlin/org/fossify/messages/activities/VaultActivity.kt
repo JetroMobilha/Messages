@@ -90,6 +90,9 @@ class VaultActivity : MainActivity() {
     override fun handleConversationClick(any: Any) {
         val conversation = any as Conversation
         Intent(this, VaultThreadActivity::class.java).apply {
+            putExtra(org.fossify.messages.helpers.THREAD_ID, conversation.threadId)
+            putExtra(org.fossify.messages.helpers.THREAD_TITLE, conversation.title)
+            putExtra(org.fossify.messages.helpers.THREAD_NUMBER, conversation.phoneNumber)
             putExtra("contact_name", conversation.title)
             putExtra("phone_number", conversation.phoneNumber)
             startActivity(this)
