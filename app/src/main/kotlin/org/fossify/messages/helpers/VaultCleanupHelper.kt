@@ -122,7 +122,8 @@ object VaultCleanupHelper {
 
                     while (cursor.moveToNext()) {
                         val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
-                        if (address != null && vaultNumbers.any { isSamePhoneNumber(it, address) }) {
+                        val canonicalPhone = vaultNumbers.firstOrNull { isSamePhoneNumber(it, address.orEmpty()) }
+                        if (address != null && canonicalPhone != null) {
                             val id = cursor.getLong(idIdx)
                             val body = if (bodyIdx >= 0) cursor.getString(bodyIdx) ?: "" else ""
                             val date = if (dateIdx >= 0) cursor.getLong(dateIdx) else System.currentTimeMillis()
@@ -130,7 +131,7 @@ object VaultCleanupHelper {
                             val read = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true
 
                             val vaultMsg = org.fossify.messages.models.VaultMessage(
-                                phoneNumber = address,
+                                phoneNumber = canonicalPhone,
                                 body = body,
                                 date = date,
                                 type = type,

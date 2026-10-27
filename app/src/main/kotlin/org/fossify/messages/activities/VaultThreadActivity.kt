@@ -27,13 +27,15 @@ class VaultThreadActivity : ThreadActivity() {
         intent.putExtra(THREAD_TITLE, title)
         intent.putExtra(org.fossify.messages.helpers.THREAD_ID, phone.hashCode().toLong())
 
+        // Set vaultPhoneNumber BEFORE calling super.onCreate so that fetchThreadMessages() has it when super.onCreate() calls loadConversation()
+        vaultPhoneNumber = phone
+
         // Anti-Snoop Protection
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         )
         super.onCreate(savedInstanceState)
-        vaultPhoneNumber = phone
 
         // Ensure any existing public conversations with this contact are exported into the vault
         if (vaultPhoneNumber.isNotEmpty()) {
@@ -44,7 +46,11 @@ class VaultThreadActivity : ThreadActivity() {
     }
 
     override fun fetchThreadMessages(): List<Message> {
-        val vaultMsgs = vaultMessageDB.getMessagesByPhoneNumber(vaultPhoneNumber)
+        if (vaultPhoneNumber.isEmpty()) return emptyList()
+        val allMsgs = vaultMessageDB.getAll()
+        val vaultMsgs = allMsgs.filter { v ->
+            org.fossify.messages.helpers.VaultCleanupHelper.isSamePhoneNumber(v.phoneNumber, vaultPhoneNumber)
+        }
         
         // Mark unread messages as read
         vaultMsgs.filter { !it.read }.forEach {
