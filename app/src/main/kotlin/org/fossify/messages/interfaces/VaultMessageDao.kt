@@ -20,6 +20,9 @@ interface VaultMessageDao {
     @Query("UPDATE vault_messages SET type = :type WHERE id = :id")
     fun updateType(id: Long, type: Int)
 
+    @Query("UPDATE vault_messages SET read = :read WHERE id = :id")
+    fun updateRead(id: Long, read: Boolean)
+
     @Query("UPDATE vault_messages SET read = 1, read_timestamp = :readTimestamp WHERE id = :id")
     fun markAsRead(id: Long, readTimestamp: Long = System.currentTimeMillis())
 

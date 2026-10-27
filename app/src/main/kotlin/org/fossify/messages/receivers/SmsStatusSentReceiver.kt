@@ -60,6 +60,8 @@ class SmsStatusSentReceiver : SendStatusReceiver() {
                         Sms.MESSAGE_TYPE_FAILED
                     }
                     context.vaultMessageDB.updateType(messageId, type)
+                    refreshMessages()
+                    refreshConversations()
                 }
                 return
             }

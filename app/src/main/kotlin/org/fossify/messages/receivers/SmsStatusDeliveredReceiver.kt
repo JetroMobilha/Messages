@@ -9,6 +9,7 @@ import android.provider.Telephony.Sms
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.extensions.messagesDB
 import org.fossify.messages.extensions.messagingUtils
+import org.fossify.messages.extensions.vaultMessageDB
 import org.fossify.messages.helpers.refreshMessages
 
 /** Handles updating databases and states when a sent SMS message is delivered. */
@@ -18,6 +19,10 @@ class SmsStatusDeliveredReceiver : SendStatusReceiver() {
 
     override fun updateAndroidDatabase(context: Context, intent: Intent, receiverResultCode: Int) {
         val messageUri: Uri? = intent.data
+        if (messageUri?.scheme == "content" && messageUri.host == "vault_sms") {
+            return
+        }
+
         val smsMessage = context.messagingUtils.getSmsMessageFromDeliveryReport(intent) ?: return
 
         try {
@@ -89,6 +94,14 @@ class SmsStatusDeliveredReceiver : SendStatusReceiver() {
         val messageUri: Uri? = intent.data
         if (messageUri != null) {
             val messageId = messageUri.lastPathSegment?.toLong() ?: 0L
+            if (messageUri.scheme == "content" && messageUri.host == "vault_sms") {
+                ensureBackgroundThread {
+                    context.vaultMessageDB.updateType(messageId, Sms.MESSAGE_TYPE_SENT)
+                    refreshMessages()
+                }
+                return
+            }
+
             ensureBackgroundThread {
                 if (status != Sms.Sent.STATUS_NONE) {
                     context.messagesDB.updateStatus(messageId, status)
