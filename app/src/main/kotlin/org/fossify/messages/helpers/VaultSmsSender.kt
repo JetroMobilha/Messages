@@ -25,7 +25,8 @@ object VaultSmsSender {
             date = date,
             type = Telephony.Sms.MESSAGE_TYPE_OUTBOX,
             read = true,
-            isMms = false
+            isMms = false,
+            subscriptionId = subId
         )
         val vaultId = context.vaultMessageDB.insert(message)
         

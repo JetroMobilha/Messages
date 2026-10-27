@@ -98,7 +98,8 @@ object VaultCleanupHelper {
                                     body = pubMsg.body,
                                     date = pubMsg.date.toLong() * 1000L,
                                     type = pubMsg.type,
-                                    read = pubMsg.read
+                                    read = pubMsg.read,
+                                    subscriptionId = pubMsg.subscriptionId
                                 )
                                 context.vaultMessageDB.insert(vaultMsg)
                             }
@@ -110,7 +111,7 @@ object VaultCleanupHelper {
 
                 context.contentResolver.query(
                     Telephony.Sms.CONTENT_URI,
-                    arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.READ),
+                    arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.READ, Telephony.Sms.SUBSCRIPTION_ID),
                     null, null, null
                 )?.use { cursor ->
                     val idIdx = cursor.getColumnIndex(Telephony.Sms._ID)
@@ -119,6 +120,7 @@ object VaultCleanupHelper {
                     val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
                     val typeIdx = cursor.getColumnIndex(Telephony.Sms.TYPE)
                     val readIdx = cursor.getColumnIndex(Telephony.Sms.READ)
+                    val subIdIdx = cursor.getColumnIndex(Telephony.Sms.SUBSCRIPTION_ID)
 
                     while (cursor.moveToNext()) {
                         val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
@@ -129,13 +131,15 @@ object VaultCleanupHelper {
                             val date = if (dateIdx >= 0) cursor.getLong(dateIdx) else System.currentTimeMillis()
                             val type = if (typeIdx >= 0) cursor.getInt(typeIdx) else Telephony.Sms.MESSAGE_TYPE_INBOX
                             val read = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true
+                            val subId = if (subIdIdx >= 0) cursor.getInt(subIdIdx) else -1
 
                             val vaultMsg = org.fossify.messages.models.VaultMessage(
                                 phoneNumber = canonicalPhone,
                                 body = body,
                                 date = date,
                                 type = type,
-                                read = read
+                                read = read,
+                                subscriptionId = subId
                             )
                             context.vaultMessageDB.insert(vaultMsg)
 

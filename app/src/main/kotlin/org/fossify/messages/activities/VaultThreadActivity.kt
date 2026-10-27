@@ -83,7 +83,7 @@ class VaultThreadActivity : ThreadActivity() {
                 senderPhoneNumber = v.phoneNumber,
                 senderName = contactName,
                 senderPhotoUri = "",
-                subscriptionId = -1
+                subscriptionId = v.subscriptionId
             )
         }.toSortedMessages()
     }

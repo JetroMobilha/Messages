@@ -37,7 +37,7 @@ import org.fossify.messages.models.VaultMessage
         VaultMessage::class,
         org.fossify.messages.models.VaultKeyword::class
     ],
-    version = 16
+    version = 17
 )
 @TypeConverters(Converters::class)
 abstract class MessagesDatabase : RoomDatabase() {
@@ -86,6 +86,7 @@ abstract class MessagesDatabase : RoomDatabase() {
                             .addMigrations(MIGRATION_13_14)
                             .addMigrations(MIGRATION_14_15)
                             .addMigrations(MIGRATION_15_16)
+                            .addMigrations(MIGRATION_16_17)
                             .build()
                     }
                 }
@@ -231,6 +232,12 @@ abstract class MessagesDatabase : RoomDatabase() {
         private val MIGRATION_15_16 = object : Migration(15, 16) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP TABLE IF EXISTS `vault_calls`")
+            }
+        }
+
+        private val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE vault_messages ADD COLUMN subscription_id INTEGER NOT NULL DEFAULT -1")
             }
         }
     }

@@ -14,5 +14,6 @@ data class VaultMessage(
     @ColumnInfo(name = "read") val read: Boolean = false,
     @ColumnInfo(name = "is_mms") val isMms: Boolean = false,
     @ColumnInfo(name = "read_timestamp") val readTimestamp: Long = 0,
-    @ColumnInfo(name = "destroy_after_ms") val destroyAfterMs: Long = 0 // 0 = Never destroy
+    @ColumnInfo(name = "destroy_after_ms") val destroyAfterMs: Long = 0, // 0 = Never destroy
+    @ColumnInfo(name = "subscription_id") val subscriptionId: Int = -1
 )
