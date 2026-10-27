@@ -193,10 +193,10 @@ open class MainActivity : SimpleActivity() {
         }
     }
 
-    private fun refreshMenuItems() {
+    open fun refreshMenuItems() {
         binding.mainMenu.requireToolbar().menu.apply {
-            findItem(R.id.show_recycle_bin).isVisible = config.useRecycleBin
-            findItem(R.id.show_archived).isVisible = config.isArchiveAvailable
+            findItem(R.id.show_recycle_bin)?.isVisible = config.useRecycleBin
+            findItem(R.id.show_archived)?.isVisible = config.isArchiveAvailable
         }
     }
 

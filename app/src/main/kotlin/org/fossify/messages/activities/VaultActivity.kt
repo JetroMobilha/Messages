@@ -54,6 +54,10 @@ class VaultActivity : MainActivity() {
         }
     }
 
+    override fun refreshMenuItems() {
+        // Vault menu items do not depend on public recycle bin or archive config
+    }
+
     override fun getCachedConversations() {
         ensureBackgroundThread {
             val vaultContacts = try {
