@@ -57,20 +57,31 @@ class VaultThreadActivity : ThreadActivity() {
             vaultMessageDB.markAsRead(it.id, System.currentTimeMillis())
         }
 
+        val contactName = intent.getStringExtra("contact_name").orEmpty().ifBlank { vaultPhoneNumber }
+        val senderContact = org.fossify.commons.models.SimpleContact(
+            rawId = vaultPhoneNumber.hashCode(),
+            contactId = vaultPhoneNumber.hashCode(),
+            name = contactName,
+            photoUri = "",
+            phoneNumbers = arrayListOf(org.fossify.commons.models.PhoneNumber(vaultPhoneNumber, 0, "", vaultPhoneNumber)),
+            birthdays = ArrayList(),
+            anniversaries = ArrayList()
+        )
+
         return vaultMsgs.map { v ->
             Message(
                 id = v.id,
                 body = v.body,
                 type = v.type,
                 status = Telephony.Sms.STATUS_NONE,
-                participants = arrayListOf(),
+                participants = arrayListOf(senderContact),
                 date = (v.date / 1000L).toInt(),
                 read = v.read,
                 threadId = vaultPhoneNumber.hashCode().toLong(),
                 isMMS = v.isMms,
                 attachment = null,
                 senderPhoneNumber = v.phoneNumber,
-                senderName = intent.getStringExtra("contact_name") ?: v.phoneNumber,
+                senderName = contactName,
                 senderPhotoUri = "",
                 subscriptionId = -1
             )
