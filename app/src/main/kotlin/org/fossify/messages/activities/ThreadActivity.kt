@@ -202,7 +202,7 @@ import org.greenrobot.eventbus.ThreadMode
 import org.joda.time.DateTime
 import java.io.File
 
-class ThreadActivity : SimpleActivity() {
+open class ThreadActivity : SimpleActivity() {
     private var threadId = 0L
     private var currentSIMCardIndex = 0
     private var isActivityVisible = false
@@ -380,7 +380,7 @@ class ThreadActivity : SimpleActivity() {
         }
     }
 
-    private fun setupOptionsMenu() {
+    open fun setupOptionsMenu() {
         binding.threadToolbar.setOnMenuItemClickListener { menuItem ->
             if (participants.isEmpty()) return@setOnMenuItemClickListener true
             return@setOnMenuItemClickListener handleMenuItemAction(menuItem)
@@ -1582,7 +1582,7 @@ class ThreadActivity : SimpleActivity() {
         updateMessageType()
     }
 
-    private fun sendMessage() {
+    open fun sendMessage() {
         var text = binding.messageHolder.threadTypeMessage.value
         if (text.isEmpty() && getAttachmentSelections().isEmpty()) {
             showErrorToast(getString(org.fossify.commons.R.string.unknown_error_occurred))
@@ -1671,7 +1671,7 @@ class ThreadActivity : SimpleActivity() {
         }
     }
 
-    private fun sendNormalMessage(text: String, subscriptionId: Int) {
+    open fun sendNormalMessage(text: String, subscriptionId: Int) {
         val addresses = participants.getAddresses()
         val attachments = buildMessageAttachments()
 

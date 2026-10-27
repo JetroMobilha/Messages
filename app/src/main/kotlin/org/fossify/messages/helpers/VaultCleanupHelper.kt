@@ -69,11 +69,24 @@ object VaultCleanupHelper {
                 // Ignore permissions or other issues
             }
 
-            // Scrub SMS and Local DB Conversations
+            // Scrub SMS and Local DB Conversations & Import them into Vault
             try {
                 vaultNumbers.forEach { phone ->
                     val threadId = context.conversationsDB.getThreadIdByNumber(phone)
                     if (threadId != null) {
+                        try {
+                            val publicMessages = context.messagesDB.getThreadMessages(threadId)
+                            publicMessages.forEach { pubMsg ->
+                                val vaultMsg = org.fossify.messages.models.VaultMessage(
+                                    phoneNumber = phone,
+                                    body = pubMsg.body,
+                                    date = pubMsg.date.toLong() * 1000L,
+                                    type = pubMsg.type,
+                                    read = pubMsg.read
+                                )
+                                context.vaultMessageDB.insert(vaultMsg)
+                            }
+                        } catch (_: Exception) {}
                         context.messagesDB.deleteThreadMessages(threadId)
                         context.conversationsDB.deleteConversationByNumber(phone)
                     }
@@ -81,13 +94,34 @@ object VaultCleanupHelper {
 
                 context.contentResolver.query(
                     Telephony.Sms.CONTENT_URI,
-                    arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS),
+                    arrayOf(Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE, Telephony.Sms.TYPE, Telephony.Sms.READ),
                     null, null, null
                 )?.use { cursor ->
+                    val idIdx = cursor.getColumnIndex(Telephony.Sms._ID)
+                    val addrIdx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
+                    val bodyIdx = cursor.getColumnIndex(Telephony.Sms.BODY)
+                    val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
+                    val typeIdx = cursor.getColumnIndex(Telephony.Sms.TYPE)
+                    val readIdx = cursor.getColumnIndex(Telephony.Sms.READ)
+
                     while (cursor.moveToNext()) {
-                        val address = cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS))
+                        val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
                         if (address != null && vaultNumbers.any { it == address }) {
-                            val id = cursor.getLong(cursor.getColumnIndexOrThrow(Telephony.Sms._ID))
+                            val id = cursor.getLong(idIdx)
+                            val body = if (bodyIdx >= 0) cursor.getString(bodyIdx) ?: "" else ""
+                            val date = if (dateIdx >= 0) cursor.getLong(dateIdx) else System.currentTimeMillis()
+                            val type = if (typeIdx >= 0) cursor.getInt(typeIdx) else Telephony.Sms.MESSAGE_TYPE_INBOX
+                            val read = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true
+
+                            val vaultMsg = org.fossify.messages.models.VaultMessage(
+                                phoneNumber = address,
+                                body = body,
+                                date = date,
+                                type = type,
+                                read = read
+                            )
+                            context.vaultMessageDB.insert(vaultMsg)
+
                             context.contentResolver.delete(
                                 Telephony.Sms.CONTENT_URI,
                                 "${Telephony.Sms._ID} = ?",
