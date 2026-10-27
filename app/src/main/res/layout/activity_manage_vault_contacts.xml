@@ -10,8 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/vault_conversations_list"
         android:layout_width="match_parent"
@@ -27,7 +25,7 @@
         android:layout_centerInParent="true"
         android:padding="16dp"
         android:gravity="center"
-        android:text="@string/no_conversations_found"
+        android:text="@string/no_contacts_found"
         android:textSize="16sp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -37,7 +35,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:contentDescription="Nova Mensagem Secreta"
+        android:contentDescription="Adicionar Contacto ao Cofre"
         android:src="@drawable/ic_plus_vector"
         app:fabSize="normal" />
 

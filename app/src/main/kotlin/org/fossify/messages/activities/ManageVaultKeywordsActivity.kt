@@ -11,14 +11,14 @@ import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.extensions.viewBinding
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.adapters.VaultKeywordsAdapter
-import org.fossify.messages.databinding.ActivityVaultBinding
+import org.fossify.messages.databinding.ActivityManageVaultKeywordsBinding
 import org.fossify.messages.databinding.DialogAddVaultKeywordBinding
 import org.fossify.messages.extensions.vaultKeywordDB
 
 class ManageVaultKeywordsActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
 
-    private val binding by viewBinding(ActivityVaultBinding::inflate)
+    private val binding by viewBinding(ActivityManageVaultKeywordsBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

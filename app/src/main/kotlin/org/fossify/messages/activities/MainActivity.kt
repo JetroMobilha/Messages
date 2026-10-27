@@ -74,7 +74,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
-class MainActivity : SimpleActivity() {
+open class MainActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
     
     private val MAKE_DEFAULT_APP_REQUEST = 1
@@ -161,7 +161,7 @@ class MainActivity : SimpleActivity() {
         }
     }
 
-    private fun setupOptionsMenu() {
+    open fun setupOptionsMenu() {
         binding.mainMenu.requireToolbar().inflateMenu(R.menu.menu_main)
         binding.mainMenu.toggleHideOnScroll(true)
         binding.mainMenu.setupMenu()
@@ -292,7 +292,7 @@ class MainActivity : SimpleActivity() {
         }
     }
 
-    private fun getCachedConversations() {
+    open fun getCachedConversations() {
         ensureBackgroundThread {
             val conversations = try {
                 conversationsDB.getNonArchived().toMutableList() as ArrayList<Conversation>
@@ -405,7 +405,7 @@ class MainActivity : SimpleActivity() {
         return currAdapter as ConversationsAdapter
     }
 
-    private fun setupConversations(
+    open fun setupConversations(
         conversations: ArrayList<Conversation>,
         cached: Boolean = false,
     ) {
@@ -470,7 +470,7 @@ class MainActivity : SimpleActivity() {
         getOrCreateConversationsAdapter().notifyDataSetChanged()
     }
 
-    private fun handleConversationClick(any: Any) {
+    open fun handleConversationClick(any: Any) {
         Intent(this, ThreadActivity::class.java).apply {
             val conversation = any as Conversation
             putExtra(THREAD_ID, conversation.threadId)
@@ -479,7 +479,7 @@ class MainActivity : SimpleActivity() {
         }
     }
 
-    private fun launchNewConversation() {
+    open fun launchNewConversation() {
         hideKeyboard()
         Intent(this, NewConversationActivity::class.java).apply {
             startActivity(this)

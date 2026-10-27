@@ -13,7 +13,7 @@ import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.extensions.viewBinding
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.messages.adapters.VaultContactsAdapter
-import org.fossify.messages.databinding.ActivityVaultBinding
+import org.fossify.messages.databinding.ActivityManageVaultContactsBinding
 import org.fossify.messages.databinding.DialogAddVaultContactBinding
 import org.fossify.messages.extensions.vaultContactDB
 import org.fossify.messages.models.VaultContact
@@ -21,7 +21,7 @@ import org.fossify.messages.models.VaultContact
 class ManageVaultContactsActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
 
-    private val binding by viewBinding(ActivityVaultBinding::inflate)
+    private val binding by viewBinding(ActivityManageVaultContactsBinding::inflate)
     private var contactsAdapter: VaultContactsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
