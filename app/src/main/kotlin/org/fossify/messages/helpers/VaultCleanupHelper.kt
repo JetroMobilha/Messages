@@ -17,6 +17,19 @@ import java.util.concurrent.TimeUnit
 object VaultCleanupHelper {
     private const val SWEEPER_WORK_NAME = "VaultSweeperWork"
 
+    fun isSamePhoneNumber(num1: String, num2: String): Boolean {
+        if (num1 == num2) return true
+        val clean1 = num1.replace(Regex("[^0-9]"), "")
+        val clean2 = num2.replace(Regex("[^0-9]"), "")
+        if (clean1.isEmpty() || clean2.isEmpty()) return false
+        if (clean1 == clean2) return true
+        val minLen = minOf(clean1.length, clean2.length)
+        if (minLen >= 7) {
+            return clean1.takeLast(7) == clean2.takeLast(7)
+        }
+        return false
+    }
+
     fun scheduleSweeper(context: Context, intervalMinutes: Int) {
         val workRequest = PeriodicWorkRequest.Builder(
             VaultCleanupWorker::class.java,
@@ -55,7 +68,7 @@ object VaultCleanupHelper {
                 )?.use { cursor ->
                     while (cursor.moveToNext()) {
                         val number = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER))
-                        if (vaultNumbers.any { it == number }) { // simple match for now
+                        if (number != null && vaultNumbers.any { isSamePhoneNumber(it, number) }) {
                             val id = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls._ID))
                             context.contentResolver.delete(
                                 CallLog.Calls.CONTENT_URI,
@@ -71,11 +84,14 @@ object VaultCleanupHelper {
 
             // Scrub SMS and Local DB Conversations & Import them into Vault
             try {
+                val allConvs = (try { context.conversationsDB.getNonArchived() } catch (_: Exception) { emptyList() }) +
+                               (try { context.conversationsDB.getAllArchived() } catch (_: Exception) { emptyList() })
+
                 vaultNumbers.forEach { phone ->
-                    val threadId = context.conversationsDB.getThreadIdByNumber(phone)
-                    if (threadId != null) {
+                    val matchingConvs = allConvs.filter { isSamePhoneNumber(phone, it.phoneNumber) }
+                    matchingConvs.forEach { conv ->
                         try {
-                            val publicMessages = context.messagesDB.getThreadMessages(threadId)
+                            val publicMessages = context.messagesDB.getThreadMessages(conv.threadId)
                             publicMessages.forEach { pubMsg ->
                                 val vaultMsg = org.fossify.messages.models.VaultMessage(
                                     phoneNumber = phone,
@@ -87,8 +103,8 @@ object VaultCleanupHelper {
                                 context.vaultMessageDB.insert(vaultMsg)
                             }
                         } catch (_: Exception) {}
-                        context.messagesDB.deleteThreadMessages(threadId)
-                        context.conversationsDB.deleteConversationByNumber(phone)
+                        context.messagesDB.deleteThreadMessages(conv.threadId)
+                        context.conversationsDB.deleteThreadId(conv.threadId)
                     }
                 }
 
@@ -106,7 +122,7 @@ object VaultCleanupHelper {
 
                     while (cursor.moveToNext()) {
                         val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
-                        if (address != null && vaultNumbers.any { it == address }) {
+                        if (address != null && vaultNumbers.any { isSamePhoneNumber(it, address) }) {
                             val id = cursor.getLong(idIdx)
                             val body = if (bodyIdx >= 0) cursor.getString(bodyIdx) ?: "" else ""
                             val date = if (dateIdx >= 0) cursor.getLong(dateIdx) else System.currentTimeMillis()

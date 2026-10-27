@@ -1,24 +1,30 @@
 package org.fossify.messages.activities
 
 import android.os.Bundle
+import android.provider.Telephony
 import android.view.WindowManager
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.messages.extensions.toSortedMessages
+import org.fossify.messages.extensions.vaultMessageDB
+import org.fossify.messages.helpers.THREAD_NUMBER
+import org.fossify.messages.helpers.THREAD_TITLE
 import org.fossify.messages.helpers.VaultSmsSender
+import org.fossify.messages.models.Message
 
 class VaultThreadActivity : ThreadActivity() {
 
     private var vaultPhoneNumber: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val phone = intent.getStringExtra("phone_number") 
-            ?: intent.getStringExtra(org.fossify.messages.helpers.THREAD_NUMBER) 
+        val phone = intent.getStringExtra("phone_number")
+            ?: intent.getStringExtra(THREAD_NUMBER)
             ?: ""
-        val title = intent.getStringExtra("contact_name") 
-            ?: intent.getStringExtra(org.fossify.messages.helpers.THREAD_TITLE) 
+        val title = intent.getStringExtra("contact_name")
+            ?: intent.getStringExtra(THREAD_TITLE)
             ?: phone
 
-        intent.putExtra(org.fossify.messages.helpers.THREAD_NUMBER, phone)
-        intent.putExtra(org.fossify.messages.helpers.THREAD_TITLE, title)
+        intent.putExtra(THREAD_NUMBER, phone)
+        intent.putExtra(THREAD_TITLE, title)
         intent.putExtra(org.fossify.messages.helpers.THREAD_ID, phone.hashCode().toLong())
 
         // Anti-Snoop Protection
@@ -37,6 +43,34 @@ class VaultThreadActivity : ThreadActivity() {
         }
     }
 
+    override fun fetchThreadMessages(): List<Message> {
+        val vaultMsgs = vaultMessageDB.getMessagesByPhoneNumber(vaultPhoneNumber)
+        
+        // Mark unread messages as read
+        vaultMsgs.filter { !it.read }.forEach {
+            vaultMessageDB.markAsRead(it.id, System.currentTimeMillis())
+        }
+
+        return vaultMsgs.map { v ->
+            Message(
+                id = v.id,
+                body = v.body,
+                type = v.type,
+                status = Telephony.Sms.STATUS_NONE,
+                participants = arrayListOf(),
+                date = (v.date / 1000L).toInt(),
+                read = v.read,
+                threadId = vaultPhoneNumber.hashCode().toLong(),
+                isMMS = v.isMms,
+                attachment = null,
+                senderPhoneNumber = v.phoneNumber,
+                senderName = intent.getStringExtra("contact_name") ?: v.phoneNumber,
+                senderPhotoUri = "",
+                subscriptionId = -1
+            )
+        }.toSortedMessages()
+    }
+
     override fun sendNormalMessage(text: String, subscriptionId: Int) {
         if (vaultPhoneNumber.isNotEmpty() && text.isNotEmpty()) {
             ensureBackgroundThread {
@@ -46,6 +80,13 @@ class VaultThreadActivity : ThreadActivity() {
                     destination = vaultPhoneNumber,
                     body = text
                 )
+                
+                messages = fetchThreadMessages()
+                runOnUiThread {
+                    setupAdapter()
+                    scrollToBottom()
+                    clearCurrentMessage()
+                }
             }
         } else {
             super.sendNormalMessage(text, subscriptionId)

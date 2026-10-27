@@ -212,7 +212,7 @@ open class ThreadActivity : SimpleActivity() {
     private var conversation: Conversation? = null
     private var participants = ArrayList<SimpleContact>()
     private var privateContacts = ArrayList<SimpleContact>()
-    private var messages: List<Message> = emptyList()
+    protected var messages: List<Message> = emptyList()
     private val availableSIMCards = ArrayList<SIMCard>()
     private var pendingAttachmentsToSave: List<Attachment>? = null
     private var capturedImageUri: Uri? = null
@@ -487,12 +487,7 @@ open class ThreadActivity : SimpleActivity() {
 
             val cachedMessagesCode = messages.hashCode()
             if (!isRecycleBin) {
-                messages = getMessages(threadId)
-                if (config.useRecycleBin) {
-                    val recycledMessages = messagesDB.getThreadMessagesFromRecycleBin(threadId)
-                    messages = messages.filterNotInByKey(recycledMessages) { it.getStableId() }
-                }
-                messages = messages.toSortedMessages()
+                messages = fetchThreadMessages()
             }
 
             val providerParticipantsChanged = reconcileProviderParticipants()
@@ -570,6 +565,15 @@ open class ThreadActivity : SimpleActivity() {
         }
     }
 
+    open fun fetchThreadMessages(): List<Message> {
+        var result = getMessages(threadId)
+        if (config.useRecycleBin) {
+            val recycledMessages = messagesDB.getThreadMessagesFromRecycleBin(threadId)
+            result = result.filterNotInByKey(recycledMessages) { it.getStableId() }
+        }
+        return result.toSortedMessages()
+    }
+
     private fun canReuseLoadedThread(
         providerParticipantsChanged: Boolean,
         cachedMessagesCode: Int,
@@ -604,7 +608,7 @@ open class ThreadActivity : SimpleActivity() {
         return currAdapter as ThreadAdapter
     }
 
-    private fun setupAdapter() {
+    open fun setupAdapter() {
         val latestThreadItems = getThreadItems()
 
         runOnUiThread {
@@ -663,7 +667,7 @@ open class ThreadActivity : SimpleActivity() {
         }
     }
 
-    private fun scrollToBottom() {
+    open fun scrollToBottom() {
         val position = getOrCreateThreadAdapter().currentList.lastIndex
         if (position >= 0) {
             binding.threadMessagesList.smoothScrollToPosition(position)
@@ -1697,7 +1701,7 @@ open class ThreadActivity : SimpleActivity() {
         }
     }
 
-    private fun clearCurrentMessage() {
+    open fun clearCurrentMessage() {
         binding.messageHolder.threadTypeMessage.setText("")
         getAttachmentsAdapter()?.clear()
         checkSendMessageAvailability()
